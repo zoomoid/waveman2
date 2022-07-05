@@ -64,6 +64,8 @@ type LineOptions struct {
 	// Height is the vertical scaling factor by which all sample points are scaled
 	// up. Height also determines the total canvas height when normalized samples are used
 	Height float64
+	// Inverted transforms the SVG group to be horizontically flipped
+	Inverted bool
 }
 
 // Compile-time type checking for LinePainter to implement all functions required
@@ -115,7 +117,7 @@ func (l *LinePainter) TotalHeight() float64 {
 
 // TotalWidth is the width of the canvas, that is, the width the path spans horizontally.
 func (l *LinePainter) TotalWidth() float64 {
-	return float64(len(l.PainterOptions.Data)-1) * l.Spread
+	return float64(len(l.PainterOptions.Data)-1)*l.Spread + 2*l.Spread
 }
 
 // Draw implements line drawing with optional interpolation to smooth out the curve.
@@ -129,10 +131,14 @@ func (l *LinePainter) Draw() []string {
 
 	// make a slice of pairs that have the spread x values and their y values
 	// paired
-	samples := make([][2]float64, len(l.Data))
+	samples := make([][2]float64, 0)
+	samples = append(samples, [2]float64{0, 0})
 	for i, sample := range l.Data {
-		samples[i] = [2]float64{float64(i) * l.Spread, sample * l.Height}
+		// offset samples in X direction by one unit of spread to account for start points
+		samples = append(samples, [2]float64{float64(i)*l.Spread + l.Spread, sample * l.Height})
 	}
+
+	samples = append(samples, [2]float64{l.TotalWidth(), 0})
 
 	line := ""
 	switch l.Interpolation {
@@ -145,7 +151,7 @@ func (l *LinePainter) Draw() []string {
 	}
 
 	if l.Closed {
-		line += " Z"
+		line += " Z\n"
 	}
 
 	bindings := struct {
@@ -161,7 +167,11 @@ func (l *LinePainter) Draw() []string {
 	templateBuf := &bytes.Buffer{}
 	pathTemplate.Execute(templateBuf, bindings)
 
-	output = append(output, "<g>")
+	if l.Inverted {
+		output = append(output, `<g style="transform: scaleY(-1)">`)
+	} else {
+		output = append(output, "<g>")
+	}
 	output = append(output, templateBuf.String())
 	output = append(output, "</g>")
 	return output
