@@ -13,12 +13,13 @@ import (
 // https://gionkunz.github.io/chartist-js/
 func MonotonicCube(samples [][2]float64, slope func(int, []float64, []float64) []float64) string {
 	n := len(samples)
+
 	dxs, _, ds := calculateDeltas(samples)
 
 	ms := slope(n, ds, dxs)
 
 	segments := make([]string, 0)
-	start := fmt.Sprintf("M %g %g", samples[0][0], samples[0][1])
+	start := "M 0 0"
 	segments = append(segments, start)
 
 	for i := 0; i < n-1; i++ {
@@ -31,7 +32,7 @@ func MonotonicCube(samples [][2]float64, slope func(int, []float64, []float64) [
 		// endpoints
 		x := samples[i+1][0]
 		y := samples[i+1][1]
-		segment := fmt.Sprintf("C %g %g, %g %g, %g %g", x1, y1, x2, y2, x, y)
+		segment := fmt.Sprintf("C %g %g, %g %g, %g %g\n", x1, y1, x2, y2, x, y)
 		segments = append(segments, segment)
 	}
 	return strings.Join(segments, " ")
@@ -40,7 +41,7 @@ func MonotonicCube(samples [][2]float64, slope func(int, []float64, []float64) [
 // Determine desired slope (m) at each point using Fritsch-Carlson method See:
 // http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
 func fritschCarlson(n int, ds []float64, dxs []float64) []float64 {
-	ms := make([]float64, n-1)
+	ms := make([]float64, n)
 
 	ms[0] = ds[0]
 	ms[n-1] = ds[n-2]
@@ -61,7 +62,7 @@ func fritschCarlson(n int, ds []float64, dxs []float64) []float64 {
 // Determine desired slope (m) at each point using Steffen method See:
 // http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
 func steffen(n int, ds []float64, dxs []float64) []float64 {
-	ms := make([]float64, n-1)
+	ms := make([]float64, n)
 
 	ms[0] = ds[0]
 	ms[n-1] = ds[n-2]
@@ -107,7 +108,7 @@ func None(samples [][2]float64) string {
 	for i := 0; i < n; i++ {
 		x := samples[i][0]
 		y := samples[i][1]
-		segment := fmt.Sprintf("L %g %g", x, y)
+		segment := fmt.Sprintf("L %g %g \n", x, y)
 		segments = append(segments, segment)
 	}
 	return strings.Join(segments, " ")
