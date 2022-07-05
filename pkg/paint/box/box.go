@@ -93,8 +93,8 @@ func (o *BoxPainter) TotalWidth() float64 {
 	return o.totalWidth
 }
 
-// New constructs a new Box painter with the passed options and fills in defaults
-// for missing fields
+// New constructs a new Box painter with the passed options and fills in
+// defaults for missing fields
 func New(painter *paint.PainterOptions, options *BoxOptions) *BoxPainter {
 	if options.Color == "" {
 		options.Color = DefaultColor
@@ -117,9 +117,9 @@ func New(painter *paint.PainterOptions, options *BoxOptions) *BoxPainter {
 	}
 }
 
-// Draw implements the Painter interface's required Draw() function.
-// For each sample, an SVG rectangle is created, and all of them are wrapped
-// inside an SVG group element.
+// Draw implements the Painter interface's required Draw() function. For each
+// sample, an SVG rectangle is created, and all of them are wrapped inside an
+// SVG group element.
 func (o *BoxPainter) Draw() []string {
 	output := make([]string, 0)
 
@@ -129,8 +129,10 @@ func (o *BoxPainter) Draw() []string {
 	output = append(output, "<g>")
 	for index, sample := range o.Data {
 		buf := &bytes.Buffer{}
+		if sample*o.Height < o.Width {
+			sample = (o.Width - o.Gap) / o.Height
+		}
 		rect := o.perSample(index, sample)
-
 		rectTemplate.Execute(buf, rect)
 		output = append(output, buf.String())
 	}
@@ -148,7 +150,6 @@ func (o *BoxPainter) perSample(index int, sample float64) *Rectangle {
 	case AlignmentTop:
 		rect = o.alignTop(index, sample)
 	case AlignmentCenter:
-	default:
 		rect = o.alignCenter(index, sample)
 	}
 	rect.Color = o.Color
