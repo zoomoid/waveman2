@@ -3,12 +3,21 @@ package transform
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"time"
 
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/mp3"
 	"github.com/rs/zerolog/log"
+)
+
+type DownsamplingMode string
+
+const (
+	DownsamplingNone   DownsamplingMode = "none"
+	DownsamplingHead   DownsamplingMode = "head"
+	DownsamplingCenter DownsamplingMode = "center"
+	DownsamplingTail   DownsamplingMode = "tail"
 )
 
 type TransformerMode string
@@ -22,22 +31,24 @@ const (
 )
 
 var (
-	ErrNoFile                error           = errors.New("no file given")
-	DefaultTransformerMode   TransformerMode = TransformerModeRootMeanSquare
-	DefaultRoundingPrecision uint            = 3
+	ErrNoFile                error            = errors.New("no file given")
+	DefaultTransformerMode   TransformerMode  = TransformerModeRootMeanSquare
+	DefaultRoundingPrecision uint             = 3
+	DefaultDownsamplingMode  DownsamplingMode = DownsamplingNone
+	DefaultPrecision         Precision        = PrecisionFull
 )
 
 type ReaderOptions struct {
-	Chunks    int
-	Filename  string
-	Mode      TransformerMode
-	Precision Precision
+	Chunks       int
+	Filename     string
+	Mode         TransformerMode
+	Precision    Precision
+	Downsampling DownsamplingMode
 }
 
 type Precision uint8
 
 const (
-
 	// Lowest level of precision. Only every 128th sample is used
 	Precision128 Precision = 128
 	// Only every 64th sample is used
@@ -57,14 +68,17 @@ const (
 )
 
 type ReaderContext struct {
-	chunks    int
-	filename  string
-	mode      TransformerMode
-	reader    *os.File
-	decoder   beep.StreamSeekCloser
-	blocks    []float64
-	chunkSize int
-	precision Precision
+	chunks             int
+	filename           string
+	mode               TransformerMode
+	file               *os.File
+	decoder            *Mp3Decoder
+	blocks             []float64
+	chunkSize          int
+	precision          Precision
+	samplesPerChunk    int
+	singleSampleBuffer [][2]float64
+	downsampling       DownsamplingMode
 }
 
 func New(options *ReaderOptions) (*ReaderContext, error) {
@@ -78,7 +92,10 @@ func New(options *ReaderOptions) (*ReaderContext, error) {
 		return nil, ErrNoFile
 	}
 	if options.Precision == 0 {
-		options.Precision = PrecisionFull
+		options.Precision = DefaultPrecision
+	}
+	if options.Downsampling == "" {
+		options.Downsampling = DefaultDownsamplingMode
 	}
 
 	fn, err := filepath.Abs(options.Filename)
@@ -90,26 +107,30 @@ func New(options *ReaderOptions) (*ReaderContext, error) {
 		return nil, errors.New("failed to open file")
 	}
 
-	stream, _, err := mp3.Decode(f)
+	d, err := newDecoder(f)
 	if err != nil {
-		return nil, errors.New("failed to construct decoder")
+		return nil, err
 	}
 
-	chunkSize := stream.Len() / options.Chunks
+	chunkSize := int(d.length()) / options.Chunks
 	blocks := make([]float64, options.Chunks)
-
+	samplesPerChunk := (chunkSize / DefaultGoMp3FrameWidth) / int(options.Precision)
+	singleSampleBuffer := make([][2]float64, 1)
 	ctx := &ReaderContext{
-		chunks:    options.Chunks,
-		filename:  options.Filename,
-		mode:      options.Mode,
-		reader:    f,
-		decoder:   stream,
-		blocks:    blocks,
-		chunkSize: chunkSize,
-		precision: options.Precision,
+		chunks:             options.Chunks,
+		filename:           options.Filename,
+		mode:               options.Mode,
+		file:               f,
+		decoder:            d,
+		blocks:             blocks,
+		chunkSize:          chunkSize,
+		precision:          options.Precision,
+		samplesPerChunk:    samplesPerChunk,
+		singleSampleBuffer: singleSampleBuffer,
+		downsampling:       options.Downsampling,
 	}
 
-	err = ctx.read()
+	err = ctx.process()
 	if err != nil {
 		return nil, err
 	}
@@ -118,36 +139,41 @@ func New(options *ReaderOptions) (*ReaderContext, error) {
 }
 
 func (r *ReaderContext) Close() {
-	defer r.reader.Close()
+	defer r.file.Close()
 }
 
 func (r *ReaderContext) Blocks() []float64 {
 	return r.blocks
 }
 
-func (r *ReaderContext) read() error {
-	samplesPerChunk := r.chunkSize / int(r.precision)
+func (r *ReaderContext) process() error {
 	log.Debug().
 		Int("chunks", r.chunks).
 		Int("raw samples per chunk", r.chunkSize).
-		Int("samples per resampled chunk", samplesPerChunk).
-		Int("total samples", r.decoder.Len()).
+		Int("samples per resampled chunk", r.samplesPerChunk).
+		Int("total samples", int(r.decoder.length())).
 		Send()
 
+	blockBuffer := make([][2]float64, r.samplesPerChunk)
 	for i := range r.blocks {
-		b := make([][2]float64, samplesPerChunk)
-		n, ok := r.decoder.Stream(b)
-		err := r.decoder.Err()
-		if !ok && err != nil {
-			return err
+		var err error
+		switch r.downsampling {
+		case DownsamplingHead:
+			_, err = r.downsampleHead(blockBuffer)
+		case DownsamplingCenter:
+			_, err = r.downsampleCenter(blockBuffer, i)
+		case DownsamplingTail:
+			_, err = r.downsampleTail(blockBuffer)
+		case DownsamplingNone:
+			_, err = r.decoder.read(blockBuffer)
+		default:
+			return fmt.Errorf("downsampling mode %s is not supported", r.downsampling)
 		}
-		seeking := r.chunkSize - n
-		err = r.decoder.Seek(i*r.chunkSize + seeking)
 		if err != nil {
 			return err
 		}
 
-		monoSignal := toMono(b)
+		monoSignal := toMono(blockBuffer)
 
 		block := float64(0)
 		switch r.mode {
@@ -173,13 +199,82 @@ func (r *ReaderContext) read() error {
 	return nil
 }
 
-// func (r *ReaderContext) resample(samples [][2]float64, precision uint) [][2]float64 {
-// 	if Precision(precision) == PrecisionFull {
-// 		return samples
-// 	}
-// 	s := make([][2]float64, 0)
-// 	for i := 0; i < len(samples); i += int(precision) {
-// 		s = append(s, samples[i])
-// 	}
-// 	return s
-// }
+func (r *ReaderContext) downsampleHead(block [][2]float64) (int, error) {
+	n, err := r.decoder.read(block)
+	if err != nil {
+		return n, err
+	}
+	seekSize := r.chunkSize - (n * DefaultGoMp3FrameWidth)
+	_, err = r.decoder.seek(int64(seekSize), io.SeekCurrent)
+	if errors.Is(err, io.EOF) {
+		return n, nil
+	}
+	return n, err
+}
+
+func (r *ReaderContext) downsampleTail(block [][2]float64) (int, error) {
+	n := len(block)
+	seekSize := r.chunkSize - (n * DefaultGoMp3FrameWidth)
+	sb, err := r.decoder.seek(int64(seekSize), io.SeekCurrent)
+	if errors.Is(err, io.EOF) {
+		return int(sb) / r.decoder.width, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	rb, err := r.decoder.read(block)
+	if errors.Is(err, io.EOF) {
+		return rb, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	return r.samplesPerChunk, nil
+}
+
+func (r *ReaderContext) downsampleCenter(block [][2]float64, chunk int) (int, error) {
+	n := r.samplesPerChunk * r.decoder.width
+	lq := (r.chunkSize / 2) - (n / 2)
+	seekTo := (int64(r.chunkSize*(chunk) + lq))
+	sb, err := r.decoder.seek(seekTo, io.SeekStart)
+	if errors.Is(err, io.EOF) {
+		return int(sb) / r.decoder.width, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	rb, err := r.decoder.read(block)
+	if errors.Is(err, io.EOF) {
+		return rb, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	seekEnd := int64((chunk + 1) * r.chunkSize)
+	sb, err = r.decoder.seek(seekEnd, io.SeekStart)
+	if errors.Is(err, io.EOF) {
+		return int(sb) / r.decoder.width, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	return r.samplesPerChunk, nil
+}
+
+func (r *ReaderContext) downsampleEvenly(block [][2]float64) (n int, err error) {
+	t := time.Now()
+	for i := 0; i < r.samplesPerChunk; i++ {
+		_, err := r.decoder.read(r.singleSampleBuffer)
+		if err != nil {
+			return 0, err
+		}
+		block[i] = r.singleSampleBuffer[0]
+		seekSize := (int(r.precision) - 1) * DefaultGoMp3FrameWidth
+		_, err = r.decoder.seek(int64(seekSize), io.SeekCurrent)
+		if err != nil {
+			return 0, err
+		}
+	}
+	fmt.Printf("duration: %v", time.Since(t))
+	return len(block), nil
+}
