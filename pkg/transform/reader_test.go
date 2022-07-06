@@ -1,6 +1,58 @@
 package transform
 
-import "testing"
+import (
+	"testing"
+)
+
+func transformerFactory(precision Precision) *ReaderOptions {
+	return &ReaderOptions{
+		Chunks:       32,
+		Filename:     "../../hack/Morgendämmerung.mp3",
+		Mode:         TransformerModeRootMeanSquare,
+		Precision:    precision,
+		Downsampling: DownsamplingCenter,
+	}
+}
+
+func BenchmarkReaderFull(b *testing.B) {
+	t := transformerFactory(PrecisionFull)
+	New(t)
+}
+
+func BenchmarkReader2(b *testing.B) {
+	t := transformerFactory(Precision2)
+	New(t)
+}
+
+func BenchmarkReader4(b *testing.B) {
+	t := transformerFactory(Precision4)
+	New(t)
+}
+
+func BenchmarkReader8(b *testing.B) {
+	t := transformerFactory(Precision8)
+	New(t)
+}
+
+func BenchmarkReader16(b *testing.B) {
+	t := transformerFactory(Precision16)
+	New(t)
+}
+
+func BenchmarkReader32(b *testing.B) {
+	t := transformerFactory(Precision32)
+	New(t)
+}
+
+func BenchmarkReader64(b *testing.B) {
+	t := transformerFactory(Precision64)
+	New(t)
+}
+
+func BenchmarkReader128(b *testing.B) {
+	t := transformerFactory(Precision128)
+	New(t)
+}
 
 func TestNew(t *testing.T) {
 	options := &ReaderOptions{
