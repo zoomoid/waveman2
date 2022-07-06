@@ -1,6 +1,8 @@
 package transform
 
-import "math"
+import (
+	"math"
+)
 
 // toMono sums a slice of stereo samples to mono *only in a visual way*, sort of
 // like a peak meter would.
@@ -33,8 +35,9 @@ func normalize(samples []float64) []float64 {
 // downstream
 func sum(samples []float64) float64 {
 	sum := float64(0)
-	for _, sample := range samples {
-		sum += sample
+	n := len(samples)
+	for i := 0; i < n; i += 1 {
+		sum += samples[i]
 	}
 	return sum
 }
@@ -42,7 +45,9 @@ func sum(samples []float64) float64 {
 // max determines the maximum value in a slice of float64 samples
 func max(samples []float64) float64 {
 	max := float64(math.Inf(-1))
-	for _, sample := range samples {
+	n := len(samples)
+	for i := 0; i < n; i += 1 {
+		sample := samples[i]
 		if sample > max {
 			max = sample
 		}
@@ -53,7 +58,9 @@ func max(samples []float64) float64 {
 // min determines the minimum value in a slice of float64 samples
 func min(samples []float64) float64 {
 	min := float64(math.Inf(1))
-	for _, sample := range samples {
+	n := len(samples)
+	for i := 0; i < n; i += 1 {
+		sample := samples[i]
 		if sample < min {
 			min = sample
 		}
@@ -71,20 +78,23 @@ func mean(samples []float64) float64 {
 // and rounds it to a given amount of digits of precision
 func roundedMean(samples []float64, digits uint) float64 {
 	o := mean(samples)
-	precision := math.Pow(10, float64(digits))
-	o = math.Round(o * precision)
-	o = o / precision
+	roundingPrecision := math.Pow(10, float64(digits))
+	o = math.Round(o * roundingPrecision)
+	o = o / roundingPrecision
 	return o
 }
 
 // meanSquare calculates the squared mean of a slice of float64 samples
 func meanSquare(samples []float64) float64 {
 	// mutate slice of samples to their squares before using sum
-	sc := make([]float64, len(samples))
-	for i, sample := range samples {
-		sc[i] = sample * sample
+	o := float64(0)
+	n := len(samples)
+	for i := 0; i < n; i += 1 {
+		sample := samples[i]
+		o += sample * sample
 	}
-	o := sum(sc) / float64(len(sc))
+	// log.Print(o, n)
+	o = o / float64(len(samples))
 	return o
 }
 
