@@ -1,0 +1,142 @@
+<svg
+  baseProfile="tiny"
+  preserveAspectRatio="true"
+  version="1.2"
+  viewBox="0 0 1280 200"
+  height="100%" width="100%"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:ev="http://www.w3.org/2001/xml-events"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+  <g>
+  <rect width="8" height="135.17557515461448" x="1" y="32.41221242269276" rx="5" ry="5" fill="black" />
+  <rect width="8" height="87.23835183968525" x="11" y="56.380824080157375" rx="5" ry="5" fill="black" />
+  <rect width="8" height="8" x="21" y="96" rx="5" ry="5" fill="black" />
+  <rect width="8" height="120.13992806457377" x="31" y="39.93003596771312" rx="5" ry="5" fill="black" />
+  <rect width="8" height="194.13669947049667" x="41" y="2.931650264751667" rx="5" ry="5" fill="black" />
+  <rect width="8" height="109.11130171891439" x="51" y="45.444349140542805" rx="5" ry="5" fill="black" />
+  <rect width="8" height="91.25650614601548" x="61" y="54.37174692699226" rx="5" ry="5" fill="black" />
+  <rect width="8" height="29.1854491124043" x="71" y="85.40727544379786" rx="5" ry="5" fill="black" />
+  <rect width="8" height="117.8612174153415" x="81" y="41.06939129232925" rx="5" ry="5" fill="black" />
+  <rect width="8" height="81.3435912077786" x="91" y="59.3282043961107" rx="5" ry="5" fill="black" />
+  <rect width="8" height="34.205501015220136" x="101" y="82.89724949238993" rx="5" ry="5" fill="black" />
+  <rect width="8" height="114.19691541112662" x="111" y="42.90154229443669" rx="5" ry="5" fill="black" />
+  <rect width="8" height="64.21239153754553" x="121" y="67.89380423122724" rx="5" ry="5" fill="black" />
+  <rect width="8" height="70.4977689675824" x="131" y="64.7511155162088" rx="5" ry="5" fill="black" />
+  <rect width="8" height="115.74076472453285" x="141" y="42.129617637733574" rx="5" ry="5" fill="black" />
+  <rect width="8" height="155.87922815314482" x="151" y="22.06038592342759" rx="5" ry="5" fill="black" />
+  <rect width="8" height="116.03091342518397" x="161" y="41.984543287408016" rx="5" ry="5" fill="black" />
+  <rect width="8" height="82.21638274503353" x="171" y="58.891808627483236" rx="5" ry="5" fill="black" />
+  <rect width="8" height="8" x="181" y="96" rx="5" ry="5" fill="black" />
+  <rect width="8" height="104.8534758558179" x="191" y="47.57326207209105" rx="5" ry="5" fill="black" />
+  <rect width="8" height="67.59732101876145" x="201" y="66.20133949061928" rx="5" ry="5" fill="black" />
+  <rect width="8" height="73.44009442418404" x="211" y="63.27995278790798" rx="5" ry="5" fill="black" />
+  <rect width="8" height="93.94827596005955" x="221" y="53.025862019970226" rx="5" ry="5" fill="black" />
+  <rect width="8" height="8" x="231" y="96" rx="5" ry="5" fill="black" />
+  <rect width="8" height="102.78840962425181" x="241" y="48.605795187874094" rx="5" ry="5" fill="black" />
+  <rect width="8" height="181.27273199748578" x="251" y="9.363634001257111" rx="5" ry="5" fill="black" />
+  <rect width="8" height="84.32867553791513" x="261" y="57.835662231042434" rx="5" ry="5" fill="black" />
+  <rect width="8" height="105.97223917916611" x="271" y="47.013880410416945" rx="5" ry="5" fill="black" />
+  <rect width="8" height="61.76550877619188" x="281" y="69.11724561190405" rx="5" ry="5" fill="black" />
+  <rect width="8" height="71.26564504574453" x="291" y="64.36717747712774" rx="5" ry="5" fill="black" />
+  <rect width="8" height="89.11606162697733" x="301" y="55.441969186511336" rx="5" ry="5" fill="black" />
+  <rect width="8" height="19.133678826972297" x="311" y="90.43316058651385" rx="5" ry="5" fill="black" />
+  <rect width="8" height="103.87544699863835" x="321" y="48.062276500680824" rx="5" ry="5" fill="black" />
+  <rect width="8" height="82.10670605987264" x="331" y="58.94664697006368" rx="5" ry="5" fill="black" />
+  <rect width="8" height="8" x="341" y="96" rx="5" ry="5" fill="black" />
+  <rect width="8" height="102.76437931695992" x="351" y="48.61781034152004" rx="5" ry="5" fill="black" />
+  <rect width="8" height="200" x="361" y="0" rx="5" ry="5" fill="black" />
+  <rect width="8" height="102.90684025900828" x="371" y="48.54657987049586" rx="5" ry="5" fill="black" />
+  <rect width="8" height="89.18962230119466" x="381" y="55.40518884940267" rx="5" ry="5" fill="black" />
+  <rect width="8" height="15.495042942357868" x="391" y="92.25247852882107" rx="5" ry="5" fill="black" />
+  <rect width="8" height="99.27089669794624" x="401" y="50.36455165102688" rx="5" ry="5" fill="black" />
+  <rect width="8" height="77.22312441867606" x="411" y="61.38843779066197" rx="5" ry="5" fill="black" />
+  <rect width="8" height="22.67687526052256" x="421" y="88.66156236973872" rx="5" ry="5" fill="black" />
+  <rect width="8" height="103.677355339942" x="431" y="48.161322330029" rx="5" ry="5" fill="black" />
+  <rect width="8" height="89.0408113330366" x="441" y="55.4795943334817" rx="5" ry="5" fill="black" />
+  <rect width="8" height="82.00316664434999" x="451" y="58.998416677825006" rx="5" ry="5" fill="black" />
+  <rect width="8" height="115.3510624424777" x="461" y="42.32446877876115" rx="5" ry="5" fill="black" />
+  <rect width="8" height="171.15381286983757" x="471" y="14.423093565081217" rx="5" ry="5" fill="black" />
+  <rect width="8" height="108.72127092855735" x="481" y="45.63936453572133" rx="5" ry="5" fill="black" />
+  <rect width="8" height="74.33541167940366" x="491" y="62.83229416029817" rx="5" ry="5" fill="black" />
+  <rect width="8" height="29.08466360138672" x="501" y="85.45766819930664" rx="5" ry="5" fill="black" />
+  <rect width="8" height="116.23699889557719" x="511" y="41.881500552211406" rx="5" ry="5" fill="black" />
+  <rect width="8" height="72.35615534638458" x="521" y="63.82192232680771" rx="5" ry="5" fill="black" />
+  <rect width="8" height="93.5137754282916" x="531" y="53.2431122858542" rx="5" ry="5" fill="black" />
+  <rect width="8" height="86.64802171671275" x="541" y="56.675989141643626" rx="5" ry="5" fill="black" />
+  <rect width="8" height="15.509671507638917" x="551" y="92.24516424618054" rx="5" ry="5" fill="black" />
+  <rect width="8" height="101.49027407254742" x="561" y="49.25486296372629" rx="5" ry="5" fill="black" />
+  <rect width="8" height="190.64527817465157" x="571" y="4.677360912674217" rx="5" ry="5" fill="black" />
+  <rect width="8" height="102.76226668684345" x="581" y="48.61886665657828" rx="5" ry="5" fill="black" />
+  <rect width="8" height="105.099849270485" x="591" y="47.4500753647575" rx="5" ry="5" fill="black" />
+  <rect width="8" height="61.63894120192784" x="601" y="69.18052939903608" rx="5" ry="5" fill="black" />
+  <rect width="8" height="85.92750053040803" x="611" y="57.03624973479599" rx="5" ry="5" fill="black" />
+  <rect width="8" height="91.33533338972133" x="621" y="54.332333305139336" rx="5" ry="5" fill="black" />
+  <rect width="8" height="18.890507261381742" x="631" y="90.55474636930913" rx="5" ry="5" fill="black" />
+  <rect width="8" height="101.25923169994677" x="641" y="49.37038415002662" rx="5" ry="5" fill="black" />
+  <rect width="8" height="78.55032534475545" x="651" y="60.724837327622275" rx="5" ry="5" fill="black" />
+  <rect width="8" height="8" x="661" y="96" rx="5" ry="5" fill="black" />
+  <rect width="8" height="109.82929809194468" x="671" y="45.08535095402766" rx="5" ry="5" fill="black" />
+  <rect width="8" height="173.3760477604716" x="681" y="13.311976119764196" rx="5" ry="5" fill="black" />
+  <rect width="8" height="97.40470339839202" x="691" y="51.29764830080399" rx="5" ry="5" fill="black" />
+  <rect width="8" height="93.46438563435234" x="701" y="53.26780718282383" rx="5" ry="5" fill="black" />
+  <rect width="8" height="21.18677153974291" x="711" y="89.40661423012854" rx="5" ry="5" fill="black" />
+  <rect width="8" height="94.18152423126078" x="721" y="52.90923788436961" rx="5" ry="5" fill="black" />
+  <rect width="8" height="72.90282095723703" x="731" y="63.54858952138149" rx="5" ry="5" fill="black" />
+  <rect width="8" height="15.426097432275315" x="741" y="92.28695128386234" rx="5" ry="5" fill="black" />
+  <rect width="8" height="102.6854805018349" x="751" y="48.65725974908255" rx="5" ry="5" fill="black" />
+  <rect width="8" height="57.77569038289398" x="761" y="71.11215480855302" rx="5" ry="5" fill="black" />
+  <rect width="8" height="73.35491706041556" x="771" y="63.32254146979222" rx="5" ry="5" fill="black" />
+  <rect width="8" height="117.39311557369038" x="781" y="41.30344221315481" rx="5" ry="5" fill="black" />
+  <rect width="8" height="146.35054795073302" x="791" y="26.82472602463349" rx="5" ry="5" fill="black" />
+  <rect width="8" height="92.50678187396116" x="801" y="53.74660906301942" rx="5" ry="5" fill="black" />
+  <rect width="8" height="74.42567103367834" x="811" y="62.78716448316083" rx="5" ry="5" fill="black" />
+  <rect width="8" height="17.507569423385302" x="821" y="91.24621528830735" rx="5" ry="5" fill="black" />
+  <rect width="8" height="104.08074428491949" x="831" y="47.959627857540255" rx="5" ry="5" fill="black" />
+  <rect width="8" height="66.89465528775702" x="841" y="66.55267235612149" rx="5" ry="5" fill="black" />
+  <rect width="8" height="73.41651247655439" x="851" y="63.291743761722806" rx="5" ry="5" fill="black" />
+  <rect width="8" height="92.08195856643889" x="861" y="53.95902071678056" rx="5" ry="5" fill="black" />
+  <rect width="8" height="22.809409890054855" x="871" y="88.59529505497257" rx="5" ry="5" fill="black" />
+  <rect width="8" height="99.88142972826597" x="881" y="50.059285135867015" rx="5" ry="5" fill="black" />
+  <rect width="8" height="183.04198919844933" x="891" y="8.479005400775335" rx="5" ry="5" fill="black" />
+  <rect width="8" height="100.9518081322613" x="901" y="49.52409593386935" rx="5" ry="5" fill="black" />
+  <rect width="8" height="100.53477511818036" x="911" y="49.73261244090982" rx="5" ry="5" fill="black" />
+  <rect width="8" height="65.11449559075253" x="921" y="67.44275220462373" rx="5" ry="5" fill="black" />
+  <rect width="8" height="87.15724992446339" x="931" y="56.42137503776831" rx="5" ry="5" fill="black" />
+  <rect width="8" height="90.84184377015596" x="941" y="54.57907811492202" rx="5" ry="5" fill="black" />
+  <rect width="8" height="31.176389473433584" x="951" y="84.41180526328321" rx="5" ry="5" fill="black" />
+  <rect width="8" height="100.16524316077995" x="961" y="49.917378419610024" rx="5" ry="5" fill="black" />
+  <rect width="8" height="82.12340210407496" x="971" y="58.93829894796252" rx="5" ry="5" fill="black" />
+  <rect width="8" height="30.12685927108129" x="981" y="84.93657036445936" rx="5" ry="5" fill="black" />
+  <rect width="8" height="108.25476735752461" x="991" y="45.87261632123769" rx="5" ry="5" fill="black" />
+  <rect width="8" height="192.80184279215902" x="1001" y="3.599078603920489" rx="5" ry="5" fill="black" />
+  <rect width="8" height="112.37914001428881" x="1011" y="43.810429992855596" rx="5" ry="5" fill="black" />
+  <rect width="8" height="87.39158930826058" x="1021" y="56.30420534586971" rx="5" ry="5" fill="black" />
+  <rect width="8" height="11.561173639849482" x="1031" y="94.21941318007526" rx="5" ry="5" fill="black" />
+  <rect width="8" height="101.02730118371743" x="1041" y="49.48634940814129" rx="5" ry="5" fill="black" />
+  <rect width="8" height="77.67352282348946" x="1051" y="61.16323858825527" rx="5" ry="5" fill="black" />
+  <rect width="8" height="32.81558996693298" x="1061" y="83.59220501653351" rx="5" ry="5" fill="black" />
+  <rect width="8" height="109.05799754575244" x="1071" y="45.47100122712378" rx="5" ry="5" fill="black" />
+  <rect width="8" height="68.84137662898564" x="1081" y="65.57931168550718" rx="5" ry="5" fill="black" />
+  <rect width="8" height="69.23307428380866" x="1091" y="65.38346285809567" rx="5" ry="5" fill="black" />
+  <rect width="8" height="119.13766653820402" x="1101" y="40.43116673089799" rx="5" ry="5" fill="black" />
+  <rect width="8" height="148.67894102962964" x="1111" y="25.66052948518518" rx="5" ry="5" fill="black" />
+  <rect width="8" height="97.12854679704105" x="1121" y="51.43572660147947" rx="5" ry="5" fill="black" />
+  <rect width="8" height="77.75927342897829" x="1131" y="61.120363285510855" rx="5" ry="5" fill="black" />
+  <rect width="8" height="19.554171894590528" x="1141" y="90.22291405270474" rx="5" ry="5" fill="black" />
+  <rect width="8" height="104.04469030259258" x="1151" y="47.97765484870371" rx="5" ry="5" fill="black" />
+  <rect width="8" height="70.7931961739662" x="1161" y="64.60340191301691" rx="5" ry="5" fill="black" />
+  <rect width="8" height="71.55008689217738" x="1171" y="64.22495655391131" rx="5" ry="5" fill="black" />
+  <rect width="8" height="85.1446827178822" x="1181" y="57.4276586410589" rx="5" ry="5" fill="black" />
+  <rect width="8" height="8" x="1191" y="96" rx="5" ry="5" fill="black" />
+  <rect width="8" height="98.70396118570493" x="1201" y="50.64801940714754" rx="5" ry="5" fill="black" />
+  <rect width="8" height="168.71169951215074" x="1211" y="15.644150243924628" rx="5" ry="5" fill="black" />
+  <rect width="8" height="48.565530795051316" x="1221" y="75.71723460247435" rx="5" ry="5" fill="black" />
+  <rect width="8" height="102.17127776641198" x="1231" y="48.91436111679401" rx="5" ry="5" fill="black" />
+  <rect width="8" height="66.4472251690173" x="1241" y="66.77638741549134" rx="5" ry="5" fill="black" />
+  <rect width="8" height="68.59970796513673" x="1251" y="65.70014601743163" rx="5" ry="5" fill="black" />
+  <rect width="8" height="96.82143122394241" x="1261" y="51.589284388028794" rx="5" ry="5" fill="black" />
+  <rect width="8" height="23.892065762560062" x="1271" y="88.05396711871997" rx="5" ry="5" fill="black" />
+  </g>
+
+</svg>
