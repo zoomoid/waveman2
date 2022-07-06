@@ -21,7 +21,7 @@ var DefaultSvgTemplate = dedent.Dedent(`
   >
     {{ range $_, $el := .Elements -}}
     {{ $el }}
-    {{ end }}
+    {{ end -}}
   </svg>
 `)
 
