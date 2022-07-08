@@ -21,4 +21,3 @@ functionality in the waveman codebase itself.
 the older waveman, though several flag names changed:
 
 > TODO: implement and document CLI flags with Cobra
-
