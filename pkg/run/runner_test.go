@@ -11,10 +11,11 @@ import (
 
 func TestBox(t *testing.T) {
 	transformerOptions := &transform.ReaderOptions{
-		Chunks:    64,
-		Filename:  "../../hack/Morgendämmerung.mp3",
-		Mode:      transform.TransformerModeRootMeanSquare,
-		Precision: transform.Precision2,
+		Chunks:       64,
+		Filename:     "../../hack/Morgendämmerung.mp3",
+		Aggregator:   transform.TransformerModeRootMeanSquare,
+		Precision:    transform.Precision8,
+		Downsampling: transform.DownsamplingCenter,
 	}
 
 	boxOptions := &box.BoxOptions{
@@ -35,9 +36,9 @@ func TestBox(t *testing.T) {
 
 func TestLine(t *testing.T) {
 	transformerOptions := &transform.ReaderOptions{
-		Chunks:   64,
-		Filename: "../../hack/Morgendämmerung.mp3",
-		Mode:     transform.TransformerModeRootMeanSquare,
+		Chunks:     64,
+		Filename:   "../../hack/Morgendämmerung.mp3",
+		Aggregator: transform.TransformerModeRootMeanSquare,
 	}
 
 	lineOptions := &line.LineOptions{

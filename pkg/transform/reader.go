@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/rs/zerolog/log"
 )
@@ -20,48 +19,49 @@ const (
 	DownsamplingTail   DownsamplingMode = "tail"
 )
 
-type TransformerMode string
+type Aggregator string
 
 const (
-	TransformerModeAverage        TransformerMode = "avg"
-	TransformerModeRoundedAverage TransformerMode = "rounded_avg"
-	TransformerModeMax            TransformerMode = "max"
-	TransformerModeMeanSquare     TransformerMode = "mean_square"
-	TransformerModeRootMeanSquare TransformerMode = "rms"
+	TransformerModeAverage        Aggregator = "avg"
+	TransformerModeRoundedAverage Aggregator = "rounded-avg"
+	TransformerModeMax            Aggregator = "max"
+	TransformerModeMeanSquare     Aggregator = "mean-square"
+	TransformerModeRootMeanSquare Aggregator = "rms"
 )
 
 var (
 	ErrNoFile                error            = errors.New("no file given")
-	DefaultTransformerMode   TransformerMode  = TransformerModeRootMeanSquare
+	DefaultTransformerMode   Aggregator       = TransformerModeRootMeanSquare
 	DefaultRoundingPrecision uint             = 3
 	DefaultDownsamplingMode  DownsamplingMode = DownsamplingNone
 	DefaultPrecision         Precision        = PrecisionFull
+	DefaultChunks            int              = 64
 )
 
 type ReaderOptions struct {
 	Chunks       int
 	Filename     string
-	Mode         TransformerMode
+	Aggregator   Aggregator
 	Precision    Precision
 	Downsampling DownsamplingMode
 }
 
-type Precision uint8
+type Precision int
 
 const (
-	// Lowest level of precision. Only every 128th sample is used
+	// Lowest level of precision. Only 1/128 samples of the full chunk are used
 	Precision128 Precision = 128
-	// Only every 64th sample is used
+	// Only 1/64 samples of the full chunk are used
 	Precision64 Precision = 64
-	// Only every 32nd sample is used
+	// Only 1/32 samples of the full chunk are used
 	Precision32 Precision = 32
-	// Only every 16th sample is used
+	// Only 1/16 samples of the full chunk are used
 	Precision16 Precision = 16
-	// Only every 8th sample is used
+	// Only 1/8 samples of the full chunk are used
 	Precision8 Precision = 8
-	// Only every 4th sample is used
+	// Only 1/4 samples of the full chunk are used
 	Precision4 Precision = 4
-	// Only every 2nd sample is used
+	// Only 1/2 samples of the full chunk are used
 	Precision2 Precision = 2
 	// Highest level of precision, samples are used as-is
 	PrecisionFull Precision = 1
@@ -70,7 +70,7 @@ const (
 type ReaderContext struct {
 	chunks             int
 	filename           string
-	mode               TransformerMode
+	mode               Aggregator
 	file               *os.File
 	decoder            *Mp3Decoder
 	blocks             []float64
@@ -83,10 +83,10 @@ type ReaderContext struct {
 
 func New(options *ReaderOptions) (*ReaderContext, error) {
 	if options.Chunks == 0 {
-		options.Chunks = 64
+		options.Chunks = DefaultChunks
 	}
-	if options.Mode == "" {
-		options.Mode = DefaultTransformerMode
+	if options.Aggregator == "" {
+		options.Aggregator = DefaultTransformerMode
 	}
 	if options.Filename == "" {
 		return nil, ErrNoFile
@@ -119,7 +119,7 @@ func New(options *ReaderOptions) (*ReaderContext, error) {
 	ctx := &ReaderContext{
 		chunks:             options.Chunks,
 		filename:           options.Filename,
-		mode:               options.Mode,
+		mode:               options.Aggregator,
 		file:               f,
 		decoder:            d,
 		blocks:             blocks,
@@ -261,20 +261,20 @@ func (r *ReaderContext) downsampleCenter(block [][2]float64, chunk int) (int, er
 	return r.samplesPerChunk, nil
 }
 
-func (r *ReaderContext) downsampleEvenly(block [][2]float64) (n int, err error) {
-	t := time.Now()
-	for i := 0; i < r.samplesPerChunk; i++ {
-		_, err := r.decoder.read(r.singleSampleBuffer)
-		if err != nil {
-			return 0, err
-		}
-		block[i] = r.singleSampleBuffer[0]
-		seekSize := (int(r.precision) - 1) * DefaultGoMp3FrameWidth
-		_, err = r.decoder.seek(int64(seekSize), io.SeekCurrent)
-		if err != nil {
-			return 0, err
-		}
-	}
-	fmt.Printf("duration: %v", time.Since(t))
-	return len(block), nil
-}
+// func (r *ReaderContext) downsampleEvenly(block [][2]float64) (n int, err error) {
+// 	t := time.Now()
+// 	for i := 0; i < r.samplesPerChunk; i++ {
+// 		_, err := r.decoder.read(r.singleSampleBuffer)
+// 		if err != nil {
+// 			return 0, err
+// 		}
+// 		block[i] = r.singleSampleBuffer[0]
+// 		seekSize := (int(r.precision) - 1) * DefaultGoMp3FrameWidth
+// 		_, err = r.decoder.seek(int64(seekSize), io.SeekCurrent)
+// 		if err != nil {
+// 			return 0, err
+// 		}
+// 	}
+// 	fmt.Printf("duration: %v", time.Since(t))
+// 	return len(block), nil
+// }

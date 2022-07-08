@@ -8,7 +8,7 @@ func transformerFactory(precision Precision) *ReaderOptions {
 	return &ReaderOptions{
 		Chunks:       32,
 		Filename:     "../../hack/Morgendämmerung.mp3",
-		Mode:         TransformerModeRootMeanSquare,
+		Aggregator:   TransformerModeRootMeanSquare,
 		Precision:    precision,
 		Downsampling: DownsamplingCenter,
 	}
@@ -56,9 +56,9 @@ func BenchmarkReader128(b *testing.B) {
 
 func TestNew(t *testing.T) {
 	options := &ReaderOptions{
-		Chunks:   64,
-		Filename: "../../hack/Morgendämmerung.mp3",
-		Mode:     TransformerModeRootMeanSquare,
+		Chunks:     64,
+		Filename:   "../../hack/Morgendämmerung.mp3",
+		Aggregator: TransformerModeRootMeanSquare,
 	}
 
 	ctx, err := New(options)

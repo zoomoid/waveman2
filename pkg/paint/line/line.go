@@ -15,7 +15,7 @@ const (
 	// InterpolationFritschCarlson applies the Fritsch-Carlson method for
 	// interpolating hermitic cubic splines to fit the data points
 	// See: http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
-	InterpolationFritschCarlson Interpolation = "fritschCarlson"
+	InterpolationFritschCarlson Interpolation = "fritsch-carlson"
 	// InterpolationSteffen applies the Steffen method for interpolating
 	// hermetic cubic splices to fit the data points
 	// See: http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
@@ -36,7 +36,7 @@ const (
 	// Default fill color
 	DefaultFillColor = "rgba(0 0 0 / 0.5)"
 	// Default horizontal spread of data points
-	DefaultSpread = float64(20)
+	DefaultSpread = float64(10)
 	// DefaultHeight of a canvas is 200px
 	DefaultHeight = float64(200)
 )
