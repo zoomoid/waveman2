@@ -5,6 +5,7 @@ import (
 	"text/template"
 
 	"github.com/lithammer/dedent"
+	"github.com/yosssi/gohtml"
 )
 
 // DefaultSvgTemplate contains the Golang template to be executed with elements
@@ -48,7 +49,7 @@ func Template(elements []string, elWidth float64, elHeight float64, preserveAspe
 		Elements:            elements,
 	}
 	buffer := &bytes.Buffer{}
-	err = tmpl.Execute(buffer, bindings)
+	err = tmpl.Execute(gohtml.NewWriter(buffer), bindings)
 	if err != nil {
 		return "", err
 	}
