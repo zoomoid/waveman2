@@ -8,7 +8,7 @@ func transformerFactory(precision Precision) *ReaderOptions {
 	return &ReaderOptions{
 		Chunks:       32,
 		Filename:     "../../hack/Morgendämmerung.mp3",
-		Aggregator:   TransformerModeRootMeanSquare,
+		Aggregator:   AggregatorRootMeanSquare,
 		Precision:    precision,
 		Downsampling: DownsamplingCenter,
 	}
@@ -58,7 +58,7 @@ func TestNew(t *testing.T) {
 	options := &ReaderOptions{
 		Chunks:     64,
 		Filename:   "../../hack/Morgendämmerung.mp3",
-		Aggregator: TransformerModeRootMeanSquare,
+		Aggregator: AggregatorRootMeanSquare,
 	}
 
 	ctx, err := New(options)

@@ -6,8 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-
-	"github.com/rs/zerolog/log"
 )
 
 type DownsamplingMode string
@@ -17,21 +15,23 @@ const (
 	DownsamplingHead   DownsamplingMode = "head"
 	DownsamplingCenter DownsamplingMode = "center"
 	DownsamplingTail   DownsamplingMode = "tail"
+	DownsamplingEmpty  DownsamplingMode = ""
 )
 
 type Aggregator string
 
 const (
-	TransformerModeAverage        Aggregator = "avg"
-	TransformerModeRoundedAverage Aggregator = "rounded-avg"
-	TransformerModeMax            Aggregator = "max"
-	TransformerModeMeanSquare     Aggregator = "mean-square"
-	TransformerModeRootMeanSquare Aggregator = "rms"
+	AggregatorAverage        Aggregator = "avg"
+	AggregatorRoundedAverage Aggregator = "rounded-avg"
+	AggregatorMax            Aggregator = "max"
+	AggregatorMeanSquare     Aggregator = "mean-square"
+	AggregatorRootMeanSquare Aggregator = "rms"
+	AggregatorEmpty          Aggregator = ""
 )
 
 var (
 	ErrNoFile                error            = errors.New("no file given")
-	DefaultTransformerMode   Aggregator       = TransformerModeRootMeanSquare
+	DefaultAggregator        Aggregator       = AggregatorRootMeanSquare
 	DefaultRoundingPrecision uint             = 3
 	DefaultDownsamplingMode  DownsamplingMode = DownsamplingNone
 	DefaultPrecision         Precision        = PrecisionFull
@@ -85,8 +85,8 @@ func New(options *ReaderOptions) (*ReaderContext, error) {
 	if options.Chunks == 0 {
 		options.Chunks = DefaultChunks
 	}
-	if options.Aggregator == "" {
-		options.Aggregator = DefaultTransformerMode
+	if options.Aggregator == AggregatorEmpty {
+		options.Aggregator = DefaultAggregator
 	}
 	if options.Filename == "" {
 		return nil, ErrNoFile
@@ -94,7 +94,7 @@ func New(options *ReaderOptions) (*ReaderContext, error) {
 	if options.Precision == 0 {
 		options.Precision = DefaultPrecision
 	}
-	if options.Downsampling == "" {
+	if options.Downsampling == DownsamplingEmpty {
 		options.Downsampling = DefaultDownsamplingMode
 	}
 
@@ -147,12 +147,12 @@ func (r *ReaderContext) Blocks() []float64 {
 }
 
 func (r *ReaderContext) process() error {
-	log.Debug().
-		Int("chunks", r.chunks).
-		Int("raw samples per chunk", r.chunkSize).
-		Int("samples per resampled chunk", r.samplesPerChunk).
-		Int("total samples", int(r.decoder.length())).
-		Send()
+	// log.Debug().
+	// 	Int("chunks", r.chunks).
+	// 	Int("raw samples per chunk", r.chunkSize).
+	// 	Int("samples per resampled chunk", r.samplesPerChunk).
+	// 	Int("total samples", int(r.decoder.length())).
+	// 	Send()
 
 	blockBuffer := make([][2]float64, r.samplesPerChunk)
 	for i := range r.blocks {
@@ -177,15 +177,15 @@ func (r *ReaderContext) process() error {
 
 		block := float64(0)
 		switch r.mode {
-		case TransformerModeMax:
+		case AggregatorMax:
 			block = max(monoSignal)
-		case TransformerModeAverage:
+		case AggregatorAverage:
 			block = mean(monoSignal)
-		case TransformerModeRoundedAverage:
+		case AggregatorRoundedAverage:
 			block = roundedMean(monoSignal, DefaultRoundingPrecision)
-		case TransformerModeMeanSquare:
+		case AggregatorMeanSquare:
 			block = meanSquare(monoSignal)
-		case TransformerModeRootMeanSquare:
+		case AggregatorRootMeanSquare:
 			block = rootMeanSquare(monoSignal)
 		default:
 			return fmt.Errorf("mode %s is not implemented", r.mode)
