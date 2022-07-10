@@ -20,21 +20,23 @@ const (
 	// hermetic cubic splices to fit the data points
 	// See: http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
 	InterpolationSteffen Interpolation = "steffen"
+	// InterpolationEmpty is for catching uninitialized interpolation modes
+	InterpolationEmpty Interpolation = ""
 )
 
 const (
-	DefaultPathTemplate = `<path d="{{.Points}}" fill="{{.Fill}}" stroke="{{.Stroke.Color}}" stroke-width="{{.Stroke.Width}}" />`
+	DefaultPathTemplate string = `<path d="{{.Points}}" fill="{{.Fill}}" stroke="{{.Stroke.Color}}" stroke-width="{{.Stroke.Width}}" />`
 )
 
 const (
 	// Default interpolation mode
-	DefaultInterpolation = InterpolationFritschCarlson
+	DefaultInterpolation Interpolation = InterpolationFritschCarlson
 	// Default stroke width
-	DefaultStrokeWidth = "5px"
+	DefaultStrokeWidth string = "5px"
 	// Default stroke color
-	DefaultStrokeColor = "black"
+	DefaultStrokeColor string = "black"
 	// Default fill color
-	DefaultFillColor = "rgba(0 0 0 / 0.5)"
+	DefaultFillColor string = "rgba(0 0 0 / 0.5)"
 	// Default horizontal spread of data points
 	DefaultSpread = float64(10)
 	// DefaultHeight of a canvas is 200px
@@ -82,7 +84,7 @@ type LinePainter struct {
 // New constructs a new Line painter with the passed options and fills in defaults
 // for missing fields
 func New(painter *paint.PainterOptions, options *LineOptions) *LinePainter {
-	if options.Interpolation == "" {
+	if options.Interpolation == InterpolationEmpty {
 		options.Interpolation = DefaultInterpolation
 	}
 	if options.Fill == "" {

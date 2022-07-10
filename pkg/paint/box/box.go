@@ -17,6 +17,8 @@ const (
 	AlignmentCenter Alignment = "center"
 	// AlignmentBottom pulls all boxes to the canvas's lower boundary
 	AlignmentBottom Alignment = "bottom"
+	// AlignmentEmpty is used for catching unitialized alignment
+	AlignmentEmpty Alignment = ""
 )
 
 const (
@@ -99,7 +101,7 @@ func New(painter *paint.PainterOptions, options *BoxOptions) *BoxPainter {
 	if options.Color == "" {
 		options.Color = DefaultColor
 	}
-	if options.Alignment == "" {
+	if options.Alignment == AlignmentEmpty {
 		options.Alignment = AlignmentCenter
 	}
 	if options.Height == 0 {
