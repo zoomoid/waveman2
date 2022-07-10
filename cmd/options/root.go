@@ -8,6 +8,8 @@ const (
 	FilenameShort      string = "f"
 	Chunks             string = "chunks"
 	ChunksShort        string = "n"
+	Output             string = "output"
+	OutputShort        string = "o"
 )
 
 const (
@@ -16,4 +18,5 @@ const (
 	AggregatorDescription         string = "Determines the type of aggregator function to use. Chose one of 'max', 'avg', 'rounded-avg', 'mean-square', or 'root-mean-square'"
 	FilenameDescription           string = "Determines the file to be sampled, can be relative to the current working directory"
 	ChunksDescription             string = "Chunks are the number of samples in the output of a transformation. For the Box painter, this also means the number of blocks, and for the Line painter, the number of root points of the line"
+	OutputDescription             string = "Writes the output to a given file. If not specified, writes output to stdout"
 )

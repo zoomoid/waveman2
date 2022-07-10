@@ -1,6 +1,7 @@
 package options
 
 const (
+	Line            string = "line"
 	Interpolation   string = "interpolation"
 	LineFill        string = "fill-color"
 	StrokeColor     string = "stroke-color"
@@ -16,6 +17,7 @@ const (
 )
 
 const (
+	LineDescription          string = "Create a line waveform"
 	InterpolationDescription string = "Interpolation mechanism to be used for smoothing the curve. Choose one of 'none', 'fritsch-carlson', or 'steffen'"
 	LineFillDescription      string = "Color for the area enclosed by the line"
 	StrokeColorDescription   string = "Color of the line's stroke"

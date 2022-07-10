@@ -1,6 +1,7 @@
 package options
 
 const (
+	Box             string = "box"
 	BoxFill         string = "fill-color"
 	Alignment       string = "alignment"
 	BoxHeight       string = "height"
@@ -13,6 +14,7 @@ const (
 )
 
 const (
+	BoxDescription        string = "Create a box waveform"
 	BoxFillDescription    string = "Fill color of each box"
 	AlignmentDescription  string = "Alignment of the shapes, chose one of 'top', 'center', or 'bottom'"
 	BoxHeightDescription  string = "Height of the shape"
