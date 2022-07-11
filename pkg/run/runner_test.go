@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/zoomoid/waveman/v2/pkg/paint/box"
-	"github.com/zoomoid/waveman/v2/pkg/paint/line"
+	"github.com/zoomoid/waveman/v2/pkg/painter/box"
+	"github.com/zoomoid/waveman/v2/pkg/painter/line"
 	"github.com/zoomoid/waveman/v2/pkg/transform"
 )
 

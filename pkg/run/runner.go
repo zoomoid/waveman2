@@ -1,13 +1,14 @@
 package run
 
 import (
-	"github.com/zoomoid/waveman/v2/pkg/paint"
-	"github.com/zoomoid/waveman/v2/pkg/paint/box"
-	"github.com/zoomoid/waveman/v2/pkg/paint/line"
+	"github.com/zoomoid/waveman/v2/pkg/painter"
+	"github.com/zoomoid/waveman/v2/pkg/painter/box"
+	"github.com/zoomoid/waveman/v2/pkg/painter/line"
 	"github.com/zoomoid/waveman/v2/pkg/svg"
 	"github.com/zoomoid/waveman/v2/pkg/transform"
 )
 
+// Box painter reference runner
 func Box(transformerOptions *transform.ReaderOptions, boxOptions *box.BoxOptions) (string, error) {
 
 	transformer, err := transform.New(transformerOptions)
@@ -16,7 +17,7 @@ func Box(transformerOptions *transform.ReaderOptions, boxOptions *box.BoxOptions
 	}
 	blocks := transformer.Blocks()
 
-	boxPainter := box.New(&paint.PainterOptions{
+	boxPainter := box.New(&painter.PainterOptions{
 		Data: blocks,
 	}, boxOptions)
 
@@ -30,6 +31,7 @@ func Box(transformerOptions *transform.ReaderOptions, boxOptions *box.BoxOptions
 	return svg, nil
 }
 
+// Line painter reference runner
 func Line(transformerOptions *transform.ReaderOptions, lineOptions *line.LineOptions) (string, error) {
 
 	transformer, err := transform.New(transformerOptions)
@@ -38,7 +40,7 @@ func Line(transformerOptions *transform.ReaderOptions, lineOptions *line.LineOpt
 	}
 	blocks := transformer.Blocks()
 
-	linePainter := line.New(&paint.PainterOptions{
+	linePainter := line.New(&painter.PainterOptions{
 		Data: blocks,
 	}, lineOptions)
 
