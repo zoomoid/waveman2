@@ -40,7 +40,7 @@ func (l *LinePainter) Enabled() *bool {
 }
 
 func (l *LinePainter) Data() interface{} {
-	return l.data
+	return *l.data
 }
 
 func (l *LinePainter) Validate() error {
@@ -62,20 +62,12 @@ func (l *LinePainter) Flags(flags *pflag.FlagSet) {
 	flags.StringVar(&data.fill, options.LineFill, line.DefaultFillColor, options.LineFillDescription)
 	flags.StringVar(&data.strokeColor, options.StrokeColor, line.DefaultStrokeColor, options.StrokeColorDescription)
 	flags.StringVar(&data.strokeWidth, options.StrokeWidth, line.DefaultStrokeWidth, options.StrokeWidthDescription)
-	flags.Float64VarP(&data.spread, options.LineSpread, options.LineSpreadShort, line.DefaultSpread, options.LineSpreadDescription)
-	flags.Float64VarP(&data.height, options.LineHeight, options.LineHeightShort, line.DefaultHeight, options.LineHeightDescription)
 	flags.BoolVarP(&data.closed, options.Closed, options.ClosedShort, false, options.ClosedDescription)
 	flags.BoolVarP(&data.inverted, options.Inverted, options.InvertedShort, false, options.InvertedDescription)
 }
 
 func (l *lineData) ValidateLineOptions() (errList []error) {
 	if err := validation.ValidateInterpolation(l.interpolation); err != nil {
-		errList = append(errList, err)
-	}
-	if err := validation.ValidateSpread(l.spread); err != nil {
-		errList = append(errList, err)
-	}
-	if err := validation.ValidateLineHeight(l.height); err != nil {
 		errList = append(errList, err)
 	}
 	if len(errList) == 0 {

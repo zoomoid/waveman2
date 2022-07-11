@@ -10,27 +10,13 @@ import (
 func ValidateAlignment(alignment string) error {
 	a := box.Alignment(alignment)
 	switch a {
-	case box.AlignmentBottom:
-	case box.AlignmentCenter:
-	case box.AlignmentTop:
-	case box.AlignmentEmpty:
+	case box.AlignmentBottom,
+		box.AlignmentCenter,
+		box.AlignmentTop,
+		box.AlignmentEmpty:
 		return nil
 	}
 	return fmt.Errorf("--alignment %s is not supported", alignment)
-}
-
-func ValidateBoxHeight(height float64) error {
-	if height >= 0 {
-		return nil
-	}
-	return errors.New("--height must be non-negative")
-}
-
-func ValidateBoxWidth(width float64) error {
-	if width >= 0 {
-		return nil
-	}
-	return errors.New("--width must be non-negative")
 }
 
 func ValidateGap(gap float64, width float64) error {

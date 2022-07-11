@@ -40,7 +40,7 @@ func (b *BoxPainter) Enabled() *bool {
 }
 
 func (b *BoxPainter) Data() interface{} {
-	return b.data
+	return *b.data
 }
 
 func (b *BoxPainter) Validate() error {
@@ -60,20 +60,12 @@ func (b *BoxPainter) Flags(flags *pflag.FlagSet) {
 	flags.BoolVar(b.Enabled(), BoxMode, false, BoxDescription)
 	flags.StringVar(&data.color, options.BoxFill, box.DefaultColor, options.BoxFillDescription)
 	flags.StringVar(&data.alignment, options.Alignment, string(box.DefaultAlignment), options.AlignmentDescription)
-	flags.Float64VarP(&data.height, options.BoxHeight, options.BoxHeightShort, box.DefaultHeight, options.BoxHeightDescription)
-	flags.Float64VarP(&data.width, options.BoxWidth, options.BoxWidthShort, box.DefaultWidth, options.BoxWidthDescription)
 	flags.Float64VarP(&data.rounded, options.BoxRounded, options.BoxRoundedShort, box.DefaultRounded, options.BoxRoundedDescription)
 	flags.Float64Var(&data.gap, options.BoxGap, box.DefaultGap, options.BoxGapDescription)
 }
 
 func (b *boxData) validateBoxOptions() (errList []error) {
 	if err := validation.ValidateAlignment(b.alignment); err != nil {
-		errList = append(errList, err)
-	}
-	if err := validation.ValidateBoxHeight(b.height); err != nil {
-		errList = append(errList, err)
-	}
-	if err := validation.ValidateBoxWidth(b.width); err != nil {
 		errList = append(errList, err)
 	}
 	if err := validation.ValidateGap(b.gap, b.width); err != nil {
