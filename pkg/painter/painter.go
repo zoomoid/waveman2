@@ -13,3 +13,8 @@ type Painter interface {
 	// Draw is the interface function for converting a slice of samples into SVG elements
 	Draw() []string
 }
+
+const (
+	DefaultWidth  float64 = 10
+	DefaultHeight float64 = 200
+)
