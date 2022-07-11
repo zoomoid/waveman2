@@ -1,4 +1,4 @@
-package paint
+package painter
 
 type PainterOptions struct {
 	// Data contains all sample points to use in a drawing context

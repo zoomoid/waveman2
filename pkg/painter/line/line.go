@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"text/template"
 
-	"github.com/zoomoid/waveman/v2/pkg/paint"
+	"github.com/zoomoid/waveman/v2/pkg/painter"
 )
 
 type Interpolation string
@@ -72,18 +72,18 @@ type LineOptions struct {
 
 // Compile-time type checking for LinePainter to implement all functions required
 // by the Painter interface
-var _ paint.Painter = &LinePainter{}
+var _ painter.Painter = &LinePainter{}
 
 type LinePainter struct {
 	// Embed all painter options, i.e., data points
-	*paint.PainterOptions
+	*painter.PainterOptions
 	// Embed all options for the line painter
 	*LineOptions
 }
 
 // New constructs a new Line painter with the passed options and fills in defaults
 // for missing fields
-func New(painter *paint.PainterOptions, options *LineOptions) *LinePainter {
+func New(painter *painter.PainterOptions, options *LineOptions) *LinePainter {
 	if options.Interpolation == InterpolationEmpty {
 		options.Interpolation = DefaultInterpolation
 	}

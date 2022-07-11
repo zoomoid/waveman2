@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"text/template"
 
-	"github.com/zoomoid/waveman/v2/pkg/paint"
+	"github.com/zoomoid/waveman/v2/pkg/painter"
 )
 
 // Alignment is the categorical type for determining the box alignment axis
@@ -44,7 +44,7 @@ const (
 
 // Compile-time type checking for BoxPainter to implement all functions required
 // by the Painter interface
-var _ paint.Painter = &BoxPainter{}
+var _ painter.Painter = &BoxPainter{}
 
 type BoxOptions struct {
 	// Color for each rectangle, in a CSS-compliant format
@@ -78,7 +78,7 @@ type BoxOptions struct {
 // rectangles
 type BoxPainter struct {
 	// Embed all painter options, i.e., data points
-	*paint.PainterOptions
+	*painter.PainterOptions
 	// Embed all options for the box drawer
 	*BoxOptions
 }
@@ -97,7 +97,7 @@ func (o *BoxPainter) TotalWidth() float64 {
 
 // New constructs a new Box painter with the passed options and fills in
 // defaults for missing fields
-func New(painter *paint.PainterOptions, options *BoxOptions) *BoxPainter {
+func New(painter *painter.PainterOptions, options *BoxOptions) *BoxPainter {
 	if options.Color == "" {
 		options.Color = DefaultColor
 	}
