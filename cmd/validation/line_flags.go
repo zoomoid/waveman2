@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/zoomoid/waveman/v2/pkg/paint/line"
+	"github.com/zoomoid/waveman/v2/pkg/painter/line"
 )
 
 func ValidateInterpolation(interpolation string) error {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/zoomoid/waveman/v2/pkg/paint/box"
+	"github.com/zoomoid/waveman/v2/pkg/painter/box"
 )
 
 func ValidateAlignment(alignment string) error {
