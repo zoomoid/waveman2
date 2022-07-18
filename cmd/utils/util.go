@@ -12,6 +12,8 @@ type ErrorList interface {
 }
 
 // NewErrorList constructs a new ErrorList wrapper type for multiple errors
+//
+// If an empty list is passed in, retuns nil
 func NewErrorList(errlist []error) ErrorList {
 	if len(errlist) == 0 {
 		return nil

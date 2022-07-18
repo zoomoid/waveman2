@@ -1,22 +1,16 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/rs/zerolog/log"
+	r "github.com/zoomoid/waveman/v2/cmd/reference"
+	"github.com/zoomoid/waveman/v2/pkg/streams"
 )
 
 func Execute() {
 
-	streams := &IOStreams{
-		In:     os.Stdin,
-		Out:    os.Stdout,
-		ErrOut: os.Stderr,
-	}
-
-	rootCmd := NewWaveman(nil, streams).
-		Plugin(LinePainterPlugin).
-		Plugin(BoxPainterPlugin).
+	rootCmd := NewWaveman(nil, streams.DefaultStreams).
+		Plugin(r.BoxPainterPlugin).
+		Plugin(r.BoxPainterPlugin).
 		Complete()
 
 	if err := rootCmd.Execute(); err != nil {

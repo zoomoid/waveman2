@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
-	"path/filepath"
 )
 
 type DownsamplingMode string
@@ -40,7 +38,6 @@ var (
 
 type ReaderOptions struct {
 	Chunks       int
-	Filename     string
 	Aggregator   Aggregator
 	Precision    Precision
 	Downsampling DownsamplingMode
@@ -67,11 +64,12 @@ const (
 	PrecisionFull Precision = 1
 )
 
+type Transformer ReaderContext
+
 type ReaderContext struct {
 	chunks             int
-	filename           string
 	mode               Aggregator
-	file               *os.File
+	reader             io.Reader
 	decoder            *Mp3Decoder
 	blocks             []float64
 	chunkSize          int
@@ -81,16 +79,16 @@ type ReaderContext struct {
 	downsampling       DownsamplingMode
 }
 
-func New(options *ReaderOptions) (*ReaderContext, error) {
+func New(options *ReaderOptions, reader io.Reader) (*ReaderContext, error) {
 	if options.Chunks == 0 {
 		options.Chunks = DefaultChunks
 	}
 	if options.Aggregator == AggregatorEmpty {
 		options.Aggregator = DefaultAggregator
 	}
-	if options.Filename == "" {
-		return nil, ErrNoFile
-	}
+	// if options.Filename == "" {
+	// 	return nil, ErrNoFile
+	// }
 	if options.Precision == 0 {
 		options.Precision = DefaultPrecision
 	}
@@ -98,16 +96,7 @@ func New(options *ReaderOptions) (*ReaderContext, error) {
 		options.Downsampling = DefaultDownsamplingMode
 	}
 
-	fn, err := filepath.Abs(options.Filename)
-	if err != nil {
-		return nil, errors.New("failed to construct absolute path")
-	}
-	f, err := os.Open(fn)
-	if err != nil {
-		return nil, errors.New("failed to open file")
-	}
-
-	d, err := newDecoder(f)
+	d, err := newDecoder(reader)
 	if err != nil {
 		return nil, err
 	}
@@ -118,9 +107,8 @@ func New(options *ReaderOptions) (*ReaderContext, error) {
 	singleSampleBuffer := make([][2]float64, 1)
 	ctx := &ReaderContext{
 		chunks:             options.Chunks,
-		filename:           options.Filename,
 		mode:               options.Aggregator,
-		file:               f,
+		reader:             reader,
 		decoder:            d,
 		blocks:             blocks,
 		chunkSize:          chunkSize,
@@ -139,7 +127,7 @@ func New(options *ReaderOptions) (*ReaderContext, error) {
 }
 
 func (r *ReaderContext) Close() {
-	defer r.file.Close()
+	// defer r.reader.Close()
 }
 
 func (r *ReaderContext) Blocks() []float64 {

@@ -1,18 +1,19 @@
-package cmd
+package reference
 
 import (
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/pflag"
 	"github.com/zoomoid/waveman/v2/cmd/options"
 	cmdutils "github.com/zoomoid/waveman/v2/cmd/utils"
 	"github.com/zoomoid/waveman/v2/cmd/validation"
+	"github.com/zoomoid/waveman/v2/pkg/painter"
 	"github.com/zoomoid/waveman/v2/pkg/painter/line"
+	"github.com/zoomoid/waveman/v2/pkg/plugin"
 )
 
-var _ Plugin = &LinePainter{}
+var _ plugin.Plugin = &LinePainter{}
 
-var LinePainterPlugin Plugin = &LinePainter{
+var LinePainterPlugin plugin.Plugin = &LinePainter{
 	data:    newLineData(),
 	enabled: false,
 }
@@ -25,6 +26,7 @@ const (
 type LinePainter struct {
 	data    *lineData
 	enabled bool
+	painter *line.LinePainter
 }
 
 func (l *LinePainter) Name() string {
@@ -44,7 +46,7 @@ func (l *LinePainter) Data() interface{} {
 }
 
 func (l *LinePainter) Validate() error {
-	errs := l.data.ValidateLineOptions()
+	errs := l.data.validateLineOptions()
 	errlist := cmdutils.NewErrorList(errs)
 	if errlist == nil {
 		return nil
@@ -52,10 +54,10 @@ func (l *LinePainter) Validate() error {
 	return errors.New(errlist.Error())
 }
 
-func (l *LinePainter) Flags(flags *pflag.FlagSet) {
+func (l *LinePainter) Flags(flags *pflag.FlagSet) error {
 	data, ok := l.Data().(lineData)
 	if !ok {
-		log.Fatal().Msg("line data struct is malformed")
+		return errors.New("line data struct is malformed")
 	}
 	flags.BoolVar(l.Enabled(), LineMode, false, LineDescription)
 	flags.StringVar(&data.interpolation, options.Interpolation, string(line.DefaultInterpolation), options.InterpolationDescription)
@@ -64,9 +66,36 @@ func (l *LinePainter) Flags(flags *pflag.FlagSet) {
 	flags.StringVar(&data.strokeWidth, options.StrokeWidth, line.DefaultStrokeWidth, options.StrokeWidthDescription)
 	flags.BoolVarP(&data.closed, options.Closed, options.ClosedShort, false, options.ClosedDescription)
 	flags.BoolVarP(&data.inverted, options.Inverted, options.InvertedShort, false, options.InvertedDescription)
+	return nil
 }
 
-func (l *lineData) ValidateLineOptions() (errList []error) {
+func (l *LinePainter) Draw(data *[]float64) []string {
+	painter := line.New(&painter.PainterOptions{
+		Data: *data,
+	}, l.data.toOptions())
+	return painter.Draw()
+}
+
+func (l *LinePainter) Painter() painter.Painter {
+	return l.painter
+}
+
+func (l *lineData) toOptions() *line.LineOptions {
+	return &line.LineOptions{
+		Interpolation: line.Interpolation(l.interpolation),
+		Fill:          l.fill,
+		Stroke: &line.Stroke{
+			Color: l.strokeColor,
+			Width: l.strokeWidth,
+		},
+		Closed:    l.closed,
+		Spread:    l.spread,
+		Amplitude: l.height,
+		Inverted:  l.inverted,
+	}
+}
+
+func (l *lineData) validateLineOptions() (errList []error) {
 	if err := validation.ValidateInterpolation(l.interpolation); err != nil {
 		errList = append(errList, err)
 	}

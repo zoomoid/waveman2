@@ -1,7 +1,12 @@
 package run
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/zoomoid/waveman/v2/pkg/painter/box"
@@ -9,10 +14,25 @@ import (
 	"github.com/zoomoid/waveman/v2/pkg/transform"
 )
 
+const (
+	TestFile = "../../hack/Morgendämmerung.mp3"
+)
+
+func fileFactory() io.Reader {
+	fn, err := filepath.Abs(TestFile)
+	if err != nil {
+		log.Fatal(errors.New("failed to construct absolute path"))
+	}
+	f, err := os.Open(fn)
+	if err != nil {
+		log.Fatal(errors.New("failed to construct absolute path"))
+	}
+	return f
+}
+
 func TestBox(t *testing.T) {
 	transformerOptions := &transform.ReaderOptions{
 		Chunks:       50,
-		Filename:     "../../hack/Morgendämmerung.mp3",
 		Aggregator:   transform.AggregatorRootMeanSquare,
 		Precision:    transform.Precision8,
 		Downsampling: transform.DownsamplingCenter,
@@ -21,13 +41,13 @@ func TestBox(t *testing.T) {
 	boxOptions := &box.BoxOptions{
 		Color:     "black",
 		Alignment: box.AlignmentCenter,
-		Height:    200,
-		Width:     10,
+		BoxHeight: 200,
+		BoxWidth:  10,
 		Rounded:   5,
 		Gap:       2,
 	}
 
-	svg, err := Box(transformerOptions, boxOptions)
+	svg, err := Box(fileFactory(), transformerOptions, boxOptions)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +57,6 @@ func TestBox(t *testing.T) {
 func TestLine(t *testing.T) {
 	transformerOptions := &transform.ReaderOptions{
 		Chunks:       64,
-		Filename:     "../../hack/Morgendämmerung.mp3",
 		Aggregator:   transform.AggregatorRootMeanSquare,
 		Downsampling: transform.DownsamplingCenter,
 		Precision:    transform.Precision4,
@@ -50,12 +69,12 @@ func TestLine(t *testing.T) {
 			Color: line.DefaultStrokeColor,
 			Width: "2px",
 		},
-		Closed: true,
-		Spread: 10,
-		Height: 50,
+		Closed:    true,
+		Spread:    10,
+		Amplitude: 50,
 	}
 
-	svg, err := Line(transformerOptions, lineOptions)
+	svg, err := Line(fileFactory(), transformerOptions, lineOptions)
 	if err != nil {
 		t.Fatal(err)
 	}

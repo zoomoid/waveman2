@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"math"
-	"os"
 
 	"github.com/hajimehoshi/go-mp3"
 )
@@ -22,7 +21,7 @@ type Mp3Decoder struct {
 	decoder   *mp3.Decoder
 }
 
-func newDecoder(f *os.File) (*Mp3Decoder, error) {
+func newDecoder(f io.Reader) (*Mp3Decoder, error) {
 	d, err := mp3.NewDecoder(f)
 	if err != nil {
 		return nil, errors.New("failed to construct decoder")

@@ -36,10 +36,10 @@ type TemplateBindings struct {
 // Template executes the default SVG template and writes all previously created SVG elements to the body
 // Returns the template as string
 // Returns an error if any failures occur.
-func Template(elements []string, elWidth float64, elHeight float64, preserveAspectRatio bool) (string, error) {
+func Template(elements []string, elWidth float64, elHeight float64, preserveAspectRatio bool) (*bytes.Buffer, error) {
 	tmpl, err := template.New("svg").Parse(DefaultSvgTemplate)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	bindings := &TemplateBindings{
@@ -51,8 +51,8 @@ func Template(elements []string, elWidth float64, elHeight float64, preserveAspe
 	buffer := &bytes.Buffer{}
 	err = tmpl.Execute(gohtml.NewWriter(buffer), bindings)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return buffer.String(), nil
+	return buffer, nil
 }

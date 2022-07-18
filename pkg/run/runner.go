@@ -1,6 +1,8 @@
 package run
 
 import (
+	"io"
+
 	"github.com/zoomoid/waveman/v2/pkg/painter"
 	"github.com/zoomoid/waveman/v2/pkg/painter/box"
 	"github.com/zoomoid/waveman/v2/pkg/painter/line"
@@ -9,9 +11,8 @@ import (
 )
 
 // Box painter reference runner
-func Box(transformerOptions *transform.ReaderOptions, boxOptions *box.BoxOptions) (string, error) {
-
-	transformer, err := transform.New(transformerOptions)
+func Box(f io.Reader, transformerOptions *transform.ReaderOptions, boxOptions *box.BoxOptions) (string, error) {
+	transformer, err := transform.New(transformerOptions, f)
 	if err != nil {
 		return "", err
 	}
@@ -23,18 +24,17 @@ func Box(transformerOptions *transform.ReaderOptions, boxOptions *box.BoxOptions
 
 	elements := boxPainter.Draw()
 
-	svg, err := svg.Template(elements, boxPainter.TotalWidth(), boxPainter.TotalHeight(), true)
+	svg, err := svg.Template(elements, boxPainter.Width(), boxPainter.Height(), true)
 	if err != nil {
 		return "", err
 	}
 
-	return svg, nil
+	return svg.String(), nil
 }
 
 // Line painter reference runner
-func Line(transformerOptions *transform.ReaderOptions, lineOptions *line.LineOptions) (string, error) {
-
-	transformer, err := transform.New(transformerOptions)
+func Line(f io.Reader, transformerOptions *transform.ReaderOptions, lineOptions *line.LineOptions) (string, error) {
+	transformer, err := transform.New(transformerOptions, f)
 	if err != nil {
 		return "", err
 	}
@@ -46,10 +46,10 @@ func Line(transformerOptions *transform.ReaderOptions, lineOptions *line.LineOpt
 
 	elements := linePainter.Draw()
 
-	svg, err := svg.Template(elements, linePainter.TotalWidth(), linePainter.TotalHeight(), true)
+	svg, err := svg.Template(elements, linePainter.Width(), linePainter.Height(), true)
 	if err != nil {
 		return "", err
 	}
 
-	return svg, nil
+	return svg.String(), nil
 }

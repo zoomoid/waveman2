@@ -14,9 +14,7 @@ type transformerData struct {
 	downsamplingMode   string
 	downsamplingFactor int
 	aggregator         string
-	filename           string
 	chunks             int
-	output             string
 }
 
 func newTransformerData() *transformerData {
@@ -24,18 +22,15 @@ func newTransformerData() *transformerData {
 		downsamplingMode:   string(transform.DefaultDownsamplingMode),
 		downsamplingFactor: int(transform.DefaultPrecision),
 		aggregator:         string(transform.DefaultAggregator),
-		filename:           "",
 		chunks:             transform.DefaultChunks,
 	}
 }
 
-func addTransformerOptions(flags *pflag.FlagSet, data *transformerData) {
+func addTranformerFlags(flags *pflag.FlagSet, data *transformerData) {
 	flags.StringVar(&data.downsamplingMode, options.DownsamplingMode, "", options.DownsamplingModeDescription)
 	flags.IntVar(&data.downsamplingFactor, options.DownsamplingFactor, 1, options.DownsamplingFactorDescription)
 	flags.StringVar(&data.aggregator, options.Aggregator, string(transform.DefaultAggregator), options.AggregatorDescription)
-	flags.StringVarP(&data.filename, options.Filename, options.FilenameShort, "", options.FilenameDescription)
 	flags.IntVarP(&data.chunks, options.Chunks, options.ChunksShort, transform.DefaultChunks, options.ChunksDescription)
-	flags.StringVarP(&data.output, options.Output, options.OutputShort, "", options.OutputDescription)
 }
 
 func (t *transformerData) validateTransformerOptions() cmdutils.ErrorList {
@@ -53,4 +48,13 @@ func (t *transformerData) validateTransformerOptions() cmdutils.ErrorList {
 		errList = append(errList, err)
 	}
 	return cmdutils.NewErrorList(errList)
+}
+
+func (t *transformerData) toOptions() *transform.ReaderOptions {
+	return &transform.ReaderOptions{
+		Chunks:       t.chunks,
+		Aggregator:   transform.Aggregator(t.aggregator),
+		Precision:    transform.Precision(t.downsamplingFactor),
+		Downsampling: transform.DownsamplingMode(t.downsamplingMode),
+	}
 }

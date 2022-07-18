@@ -51,13 +51,13 @@ type BoxOptions struct {
 	Color string
 	// Alignment of the boxes, either top, center, or bottom
 	Alignment Alignment
-	// Height is the factor by which each sample value gets scaled upwards. Since
+	// BoxHeight is the factor by which each sample value gets scaled upwards. Since
 	// samples are expected to be normalized, this means that height is also the
 	// maximum, thus total height of the graphic
-	Height float64
-	// Width is the absolute width of each bounding box of a box, including the
+	BoxHeight float64
+	// BoxWidth is the absolute width of each bounding box of a box, including the
 	// gap. Internally, the width is reduced by the gap
-	Width float64
+	BoxWidth float64
 	// Rounded is the rounding value for all boxes. This is by default
 	// symmetrical, there is currently no way to set this for x and y
 	// indepdendently
@@ -83,15 +83,15 @@ type BoxPainter struct {
 	*BoxOptions
 }
 
-// TotalHeight returns the canvas's total height. When normalized samples are
+// Height returns the canvas's total height. When normalized samples are
 // used, this is equal to the height scaling factor
-func (o *BoxPainter) TotalHeight() float64 {
+func (o *BoxPainter) Height() float64 {
 	return o.totalHeight
 }
 
-// TotalWidth returns the canvas's total width. This is equal to the number of
+// Width returns the canvas's total width. This is equal to the number of
 // samples times the width of each box.
-func (o *BoxPainter) TotalWidth() float64 {
+func (o *BoxPainter) Width() float64 {
 	return o.totalWidth
 }
 
@@ -104,15 +104,15 @@ func New(painter *painter.PainterOptions, options *BoxOptions) *BoxPainter {
 	if options.Alignment == AlignmentEmpty {
 		options.Alignment = AlignmentCenter
 	}
-	if options.Height == 0 {
-		options.Height = DefaultHeight
+	if options.BoxHeight == 0 {
+		options.BoxHeight = DefaultHeight
 	}
-	if options.Width == 0 {
-		options.Width = DefaultWidth
+	if options.BoxWidth == 0 {
+		options.BoxWidth = DefaultWidth
 	}
 
-	options.totalHeight = options.Height
-	options.totalWidth = options.Width * float64(len(painter.Data))
+	options.totalHeight = options.BoxHeight
+	options.totalWidth = options.BoxWidth * float64(len(painter.Data))
 	return &BoxPainter{
 		PainterOptions: painter,
 		BoxOptions:     options,
@@ -131,8 +131,8 @@ func (o *BoxPainter) Draw() []string {
 	output = append(output, "<g>")
 	for index, sample := range o.Data {
 		buf := &bytes.Buffer{}
-		if sample*o.Height < o.Width {
-			sample = (o.Width - o.Gap) / o.Height
+		if sample*o.BoxHeight < o.BoxWidth {
+			sample = (o.BoxWidth - o.Gap) / o.BoxHeight
 		}
 		rect := o.perSample(index, sample)
 		rectTemplate.Execute(buf, rect)
@@ -164,12 +164,12 @@ func (o *BoxPainter) perSample(index int, sample float64) *Rectangle {
 // rectangle.
 func (o *BoxPainter) alignTop(index int, sample float64) *Rectangle {
 	pos := Position{
-		x: float64(index)*o.Width + (0.5 * o.Gap),
-		y: o.Height,
+		x: float64(index)*o.BoxWidth + (0.5 * o.Gap),
+		y: o.BoxHeight,
 	}
 	size := Dimensions{
-		width:  o.Width - o.Gap,
-		height: sample * o.Height,
+		width:  o.BoxWidth - o.Gap,
+		height: sample * o.BoxHeight,
 	}
 	return &Rectangle{
 		Position:   pos,
@@ -181,12 +181,12 @@ func (o *BoxPainter) alignTop(index int, sample float64) *Rectangle {
 // minimal rectangle.
 func (o *BoxPainter) alignCenter(index int, sample float64) *Rectangle {
 	pos := Position{
-		x: float64(index)*o.Width + (0.5 * o.Gap),
-		y: (0.5 * o.Height) - (0.5 * sample * o.Height),
+		x: float64(index)*o.BoxWidth + (0.5 * o.Gap),
+		y: (0.5 * o.BoxHeight) - (0.5 * sample * o.BoxHeight),
 	}
 	size := Dimensions{
-		width:  o.Width - o.Gap,
-		height: sample * o.Height,
+		width:  o.BoxWidth - o.Gap,
+		height: sample * o.BoxHeight,
 	}
 	return &Rectangle{
 		Position:   pos,
@@ -198,12 +198,12 @@ func (o *BoxPainter) alignCenter(index int, sample float64) *Rectangle {
 // minimal rectangle.
 func (o *BoxPainter) alignBottom(index int, sample float64) *Rectangle {
 	pos := Position{
-		x: float64(index)*o.Width + (0.5 * o.Gap),
-		y: (1 - sample) * o.Height,
+		x: float64(index)*o.BoxWidth + (0.5 * o.Gap),
+		y: (1 - sample) * o.BoxHeight,
 	}
 	size := Dimensions{
-		width:  o.Width - o.Gap,
-		height: sample * o.Height,
+		width:  o.BoxWidth - o.Gap,
+		height: sample * o.BoxHeight,
 	}
 	return &Rectangle{
 		Position:   pos,

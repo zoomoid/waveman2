@@ -1,18 +1,19 @@
-package cmd
+package reference
 
 import (
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/pflag"
 	"github.com/zoomoid/waveman/v2/cmd/options"
 	cmdutils "github.com/zoomoid/waveman/v2/cmd/utils"
 	"github.com/zoomoid/waveman/v2/cmd/validation"
+	"github.com/zoomoid/waveman/v2/pkg/painter"
 	"github.com/zoomoid/waveman/v2/pkg/painter/box"
+	"github.com/zoomoid/waveman/v2/pkg/plugin"
 )
 
-var _ Plugin = &BoxPainter{}
+var _ plugin.Plugin = &BoxPainter{}
 
-var BoxPainterPlugin Plugin = &BoxPainter{
+var BoxPainterPlugin plugin.Plugin = &BoxPainter{
 	data:    newBoxData(),
 	enabled: false,
 }
@@ -25,6 +26,7 @@ const (
 type BoxPainter struct {
 	data    *boxData
 	enabled bool
+	painter *box.BoxPainter
 }
 
 func (b *BoxPainter) Name() string {
@@ -52,16 +54,17 @@ func (b *BoxPainter) Validate() error {
 	return errors.New(errlist.Error())
 }
 
-func (b *BoxPainter) Flags(flags *pflag.FlagSet) {
+func (b *BoxPainter) Flags(flags *pflag.FlagSet) error {
 	data, ok := b.Data().(boxData)
 	if !ok {
-		log.Fatal().Msg("box data struct is malformed")
+		return errors.New("box data struct is malformed")
 	}
 	flags.BoolVar(b.Enabled(), BoxMode, false, BoxDescription)
 	flags.StringVar(&data.color, options.BoxFill, box.DefaultColor, options.BoxFillDescription)
 	flags.StringVar(&data.alignment, options.Alignment, string(box.DefaultAlignment), options.AlignmentDescription)
 	flags.Float64VarP(&data.rounded, options.BoxRounded, options.BoxRoundedShort, box.DefaultRounded, options.BoxRoundedDescription)
 	flags.Float64Var(&data.gap, options.BoxGap, box.DefaultGap, options.BoxGapDescription)
+	return nil
 }
 
 func (b *boxData) validateBoxOptions() (errList []error) {
@@ -75,6 +78,29 @@ func (b *boxData) validateBoxOptions() (errList []error) {
 		return nil
 	}
 	return errList
+}
+
+func (b *BoxPainter) Draw(data *[]float64) []string {
+	painter := box.New(&painter.PainterOptions{
+		Data: *data,
+	}, b.data.toOptions())
+	return painter.Draw()
+}
+
+func (b *boxData) toOptions() *box.BoxOptions {
+	p := &box.BoxOptions{
+		Alignment: box.Alignment(b.alignment),
+		Color:     b.color,
+		BoxHeight: b.height,
+		BoxWidth:  b.width,
+		Rounded:   b.rounded,
+		Gap:       b.rounded,
+	}
+	return p
+}
+
+func (b *BoxPainter) Painter() painter.Painter {
+	return b.painter
 }
 
 type boxData struct {

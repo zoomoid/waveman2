@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/pflag"
+	"github.com/zoomoid/waveman/v2/cmd/options"
 )
 
 func ValidatePainterModes(flags *pflag.FlagSet, modes []string) error {
@@ -47,4 +48,13 @@ func ValidateWidth(width float64) error {
 		return nil
 	}
 	return errors.New("--width must be non-negative")
+}
+
+func ValidateOutput(output string) error {
+	o := options.OutputType(output)
+	switch o {
+	case options.OutputTypeFile, options.OutputTypeEmpty:
+		return nil
+	}
+	return fmt.Errorf("--output does not support type %s, only supported types are %v", output, options.SupportedOutputs)
 }

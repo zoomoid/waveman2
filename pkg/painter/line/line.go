@@ -63,9 +63,9 @@ type LineOptions struct {
 	Closed bool
 	// Spread is the horizontal scaling factor by which all indices are scaled
 	Spread float64
-	// Height is the vertical scaling factor by which all sample points are scaled
-	// up. Height also determines the total canvas height when normalized samples are used
-	Height float64
+	// Amplitude is the vertical scaling factor by which all sample points are scaled
+	// up. Amplitude also determines the total canvas height when normalized samples are used
+	Amplitude float64
 	// Inverted transforms the SVG group to be horizontically flipped
 	Inverted bool
 }
@@ -96,8 +96,8 @@ func New(painter *painter.PainterOptions, options *LineOptions) *LinePainter {
 			Width: DefaultStrokeWidth,
 		}
 	}
-	if options.Height == 0 {
-		options.Height = DefaultHeight
+	if options.Amplitude == 0 {
+		options.Amplitude = DefaultHeight
 	}
 	if options.Spread == 0 {
 		options.Spread = DefaultSpread
@@ -109,16 +109,16 @@ func New(painter *painter.PainterOptions, options *LineOptions) *LinePainter {
 	}
 }
 
-// TotalHeight is the maximum height of any point in the curve
+// Height is the maximum height of any point in the curve
 // since the interpolation does not overshoot, the maximum height, thus the
 // total height, is the same as the Height scaling, as long as normalized data
 // is passed to the painter.
-func (l *LinePainter) TotalHeight() float64 {
-	return l.Height
+func (l *LinePainter) Height() float64 {
+	return l.Amplitude
 }
 
-// TotalWidth is the width of the canvas, that is, the width the path spans horizontally.
-func (l *LinePainter) TotalWidth() float64 {
+// Width is the width of the canvas, that is, the width the path spans horizontally.
+func (l *LinePainter) Width() float64 {
 	return float64(len(l.PainterOptions.Data)-1)*l.Spread + 2*l.Spread
 }
 
@@ -137,10 +137,10 @@ func (l *LinePainter) Draw() []string {
 	samples = append(samples, [2]float64{0, 0})
 	for i, sample := range l.Data {
 		// offset samples in X direction by one unit of spread to account for start points
-		samples = append(samples, [2]float64{float64(i)*l.Spread + l.Spread, sample * l.Height})
+		samples = append(samples, [2]float64{float64(i)*l.Spread + l.Spread, sample * l.Amplitude})
 	}
 
-	samples = append(samples, [2]float64{l.TotalWidth(), 0})
+	samples = append(samples, [2]float64{l.Width(), 0})
 
 	line := ""
 	switch l.Interpolation {
