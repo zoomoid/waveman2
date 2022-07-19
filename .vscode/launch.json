@@ -11,9 +11,23 @@
       "mode": "auto",
       "program": "${workspaceFolder}/main.go",
       "args": [
-        "--line",
-        "--downsampling-mode",
-        "head"
+        "-f",
+        "hack/Morgendämmerung.mp3",
+        "-o",
+        "file",
+        "--chunks",
+        "32",
+        "--box",
+        "--height",
+        "200",
+        "--gap",
+        "1",
+        "--rounded",
+        "0",
+        "--downsampling-factor",
+        "4",
+        "--alignment",
+        "center"
       ]
     }
   ]
