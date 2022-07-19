@@ -1,1 +1,5 @@
 hack/
+dist/
+.vscode/
+README.md
+build/

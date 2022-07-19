@@ -1,5 +1,7 @@
 # waveman2
 
+![zoomoid - Morgendämmerung waveform](hack/Morgend%C3%A4mmerung.svg)
+
 `waveman2` is the Golang successor the first waveman, built to convert audio files
 (later, only mp3), into cool-looking, more abstract audio waveforms, by reducing
 the samples to a smaller-sized slice and rendering out SVGs.
