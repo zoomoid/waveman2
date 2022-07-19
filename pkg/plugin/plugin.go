@@ -16,7 +16,7 @@ type Plugin interface {
 	Name() string
 	Description() string
 	Enabled() *bool
-	Draw(*[]float64) []string
+	Draw(*painter.PainterOptions) []string
 	Painter() painter.Painter
 }
 

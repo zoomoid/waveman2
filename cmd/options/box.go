@@ -1,11 +1,10 @@
 package options
 
 const (
-	BoxFill         string = "color"
-	Alignment       string = "alignment"
-	BoxRounded      string = "rounded"
-	BoxRoundedShort string = "r"
-	BoxGap          string = "gap"
+	BoxFill    string = "color"
+	Alignment  string = "alignment"
+	BoxRounded string = "rounded"
+	BoxGap     string = "gap"
 )
 
 const (

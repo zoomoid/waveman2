@@ -42,7 +42,7 @@ func (l *LinePainter) Enabled() *bool {
 }
 
 func (l *LinePainter) Data() interface{} {
-	return *l.data
+	return l.data
 }
 
 func (l *LinePainter) Validate() error {
@@ -55,7 +55,7 @@ func (l *LinePainter) Validate() error {
 }
 
 func (l *LinePainter) Flags(flags *pflag.FlagSet) error {
-	data, ok := l.Data().(lineData)
+	data, ok := l.Data().(*lineData)
 	if !ok {
 		return errors.New("line data struct is malformed")
 	}
@@ -69,10 +69,9 @@ func (l *LinePainter) Flags(flags *pflag.FlagSet) error {
 	return nil
 }
 
-func (l *LinePainter) Draw(data *[]float64) []string {
-	painter := line.New(&painter.PainterOptions{
-		Data: *data,
-	}, l.data.toOptions())
+func (l *LinePainter) Draw(options *painter.PainterOptions) []string {
+	painter := line.New(options, l.data.toOptions(options.Width, options.Height))
+	l.painter = painter
 	return painter.Draw()
 }
 
@@ -80,7 +79,7 @@ func (l *LinePainter) Painter() painter.Painter {
 	return l.painter
 }
 
-func (l *lineData) toOptions() *line.LineOptions {
+func (l *lineData) toOptions(width float64, height float64) *line.LineOptions {
 	return &line.LineOptions{
 		Interpolation: line.Interpolation(l.interpolation),
 		Fill:          l.fill,
@@ -89,8 +88,8 @@ func (l *lineData) toOptions() *line.LineOptions {
 			Width: l.strokeWidth,
 		},
 		Closed:    l.closed,
-		Spread:    l.spread,
-		Amplitude: l.height,
+		Spread:    width,
+		Amplitude: height,
 		Inverted:  l.inverted,
 	}
 }

@@ -31,7 +31,7 @@ var (
 	ErrNoFile                error            = errors.New("no file given")
 	DefaultAggregator        Aggregator       = AggregatorRootMeanSquare
 	DefaultRoundingPrecision uint             = 3
-	DefaultDownsamplingMode  DownsamplingMode = DownsamplingNone
+	DefaultDownsamplingMode  DownsamplingMode = DownsamplingCenter
 	DefaultPrecision         Precision        = PrecisionFull
 	DefaultChunks            int              = 64
 )

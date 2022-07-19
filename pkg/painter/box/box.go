@@ -37,7 +37,7 @@ const (
 	// DefaultWidth of each box is 20px
 	DefaultWidth = float64(20)
 	// DefaultGap of each box is 10px
-	DefaultGap = float64(10)
+	DefaultGap = float64(5)
 	// DefaultRounded rounding ratio is 10px
 	DefaultRounded = float64(10)
 )

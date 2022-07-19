@@ -58,3 +58,10 @@ func ValidateOutput(output string) error {
 	}
 	return fmt.Errorf("--output does not support type %s, only supported types are %v", output, options.SupportedOutputs)
 }
+
+// func ValidateFilenames(filenames []string, output string) error {
+// 	if options.OutputType(output) == options.OutputTypeEmpty && len(filenames) > 1 {
+// 		return fmt.Errorf("cannot use multiple files with stdout target, use --output file")
+// 	}
+// 	return nil
+// }

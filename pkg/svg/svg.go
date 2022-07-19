@@ -48,11 +48,13 @@ func Template(elements []string, elWidth float64, elHeight float64, preserveAspe
 		Height:              elHeight,
 		Elements:            elements,
 	}
-	buffer := &bytes.Buffer{}
-	err = tmpl.Execute(gohtml.NewWriter(buffer), bindings)
+	rawBuffer := &bytes.Buffer{}
+	err = tmpl.Execute(rawBuffer, bindings)
 	if err != nil {
 		return nil, err
 	}
 
-	return buffer, nil
+	outBuf := bytes.NewBuffer(gohtml.FormatBytes(rawBuffer.Bytes()))
+
+	return outBuf, nil
 }

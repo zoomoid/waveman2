@@ -10,7 +10,7 @@ func Execute() {
 
 	rootCmd := NewWaveman(nil, streams.DefaultStreams).
 		Plugin(r.BoxPainterPlugin).
-		Plugin(r.BoxPainterPlugin).
+		Plugin(r.LinePainterPlugin).
 		Complete()
 
 	if err := rootCmd.Execute(); err != nil {

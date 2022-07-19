@@ -10,6 +10,7 @@ import (
 	r "github.com/zoomoid/waveman/v2/cmd/reference"
 	cmdutils "github.com/zoomoid/waveman/v2/cmd/utils"
 	"github.com/zoomoid/waveman/v2/cmd/validation"
+	"github.com/zoomoid/waveman/v2/pkg/painter"
 	"github.com/zoomoid/waveman/v2/pkg/plugin"
 	"github.com/zoomoid/waveman/v2/pkg/streams"
 	"github.com/zoomoid/waveman/v2/pkg/svg"
@@ -18,12 +19,10 @@ import (
 )
 
 type Waveman struct {
-	cmd       *cobra.Command
-	options   *WavemanOptions
-	painter   *plugin.Plugin
-	io        *streams.IO
-	errs      []error
-	useStdout bool
+	cmd     *cobra.Command
+	options *WavemanOptions
+	painter *plugin.Plugin
+	io      *streams.IO
 }
 
 // NewWaveman creates a new cobra command and adds the relevant flags to the root command.
@@ -86,19 +85,10 @@ func (w *Waveman) Plugin(plugin plugin.Plugin) *Waveman {
 
 // Complete finalizes the Waveman configuration and creates a runner
 func (w *Waveman) Complete() *cobra.Command {
-	w.cmd.RunE = func(cmd *cobra.Command, args []string) error {
+	w.cmd.RunE = func(_ *cobra.Command, _ []string) error {
 		err := w.options.Validate() // run all data validations
 		if err != nil {
 			return err
-		}
-
-		// when -o is not specified, assume output to Stdout.
-		// Validation during expansion of -f flags (--recursive included) will fail if more
-		// than one input is present
-		// if more than one file is passed with -f flags, we can skip this, because then we
-		// will have to create parallel output files
-		if options.OutputType(w.options.output) == options.OutputTypeEmpty && len(w.options.filenames) <= 1 {
-			w.useStdout = true
 		}
 
 		// we finished all plugin registrations, so find the selected painter
@@ -120,14 +110,20 @@ func (w *Waveman) Complete() *cobra.Command {
 			if !ok {
 				log.Fatal().Msgf("Default box painter is not instantiated")
 			}
-			w.painter = &plugin
+			selected = &plugin
 		}
 
 		w.painter = selected
 
 		o := w.options
+
 		// use stdout only if a singleton file is given and the -o flag did not specify elsewise
-		useStdout := len(o.filenames) == 1 && !w.useStdout
+		// when -o is not specified, assume output to Stdout.
+		// Validation during expansion of -f flags (--recursive included) will fail if more
+		// than one input is present
+		// if more than one file is passed with -f flags, we can skip this, because then we
+		// will have to create parallel output files
+		useStdout := options.OutputType(o.output) == options.OutputTypeEmpty && len(o.filenames) <= 1
 		filenames := o.filenames
 		recursive := o.recursive
 
@@ -141,9 +137,9 @@ func (w *Waveman) Complete() *cobra.Command {
 
 		err = visitors.
 			ContinueOnError().
-			UseStdout(w.useStdout).
+			UseStdout(useStdout).
 			Visit(func(f *visitor.File) error {
-				transformer, err := transform.New(w.options.transformerData.toOptions(), f.Reader())
+				transformer, err := transform.New(o.transformerData.toOptions(), f.Reader())
 				if err != nil {
 					return err
 				}
@@ -152,7 +148,11 @@ func (w *Waveman) Complete() *cobra.Command {
 				if p == nil {
 					return fmt.Errorf("painter is nil")
 				}
-				elements := p.Draw(&samples)
+				elements := p.Draw(&painter.PainterOptions{
+					Data:   samples,
+					Height: o.height,
+					Width:  o.width,
+				})
 				out, err := svg.Template(elements, p.Painter().Width(), p.Painter().Height(), true)
 				if err != nil {
 					return err
@@ -174,8 +174,24 @@ func (w *Waveman) Complete() *cobra.Command {
 // possible
 func NewWavemanOptions() *WavemanOptions {
 	return &WavemanOptions{
-		transformerData: newTransformerData(),
-		plugins:         make(map[string]plugin.Plugin),
+		transformerData:      newTransformerData(),
+		plugins:              make(map[string]plugin.Plugin),
+		sharedPainterOptions: newSharedPainterData(),
+		filenameOptions:      newFilenameData(),
+	}
+}
+
+func newSharedPainterData() *sharedPainterOptions {
+	return &sharedPainterOptions{
+		height: painter.DefaultHeight,
+		width:  painter.DefaultWidth,
+	}
+}
+
+func newFilenameData() *filenameOptions {
+	return &filenameOptions{
+		filenames: []string{},
+		recursive: false,
 	}
 }
 
@@ -186,15 +202,18 @@ func (o *WavemanOptions) Validate() error {
 	if transformerErrors != nil {
 		return errors.New(transformerErrors.Error())
 	}
-	if err := validation.ValidateHeight(o.sharedPainterOptions.height); err != nil {
+	if err := validation.ValidateHeight(o.height); err != nil {
 		return err
 	}
-	if err := validation.ValidateWidth(o.sharedPainterOptions.width); err != nil {
+	if err := validation.ValidateWidth(o.width); err != nil {
 		return err
 	}
-	if err := validation.ValidateOutput(o.filenameOptions.output); err != nil {
+	if err := validation.ValidateOutput(o.output); err != nil {
 		return err
 	}
+	// if err := validation.ValidateFilenames(o.filenames); err != nil {
+	// 	return err
+	// }
 
 	// mutually exclude plugins
 	var mode string

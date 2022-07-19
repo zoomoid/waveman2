@@ -42,7 +42,7 @@ func (b *BoxPainter) Enabled() *bool {
 }
 
 func (b *BoxPainter) Data() interface{} {
-	return *b.data
+	return b.data
 }
 
 func (b *BoxPainter) Validate() error {
@@ -55,16 +55,35 @@ func (b *BoxPainter) Validate() error {
 }
 
 func (b *BoxPainter) Flags(flags *pflag.FlagSet) error {
-	data, ok := b.Data().(boxData)
+	data, ok := b.Data().(*boxData)
 	if !ok {
 		return errors.New("box data struct is malformed")
 	}
 	flags.BoolVar(b.Enabled(), BoxMode, false, BoxDescription)
 	flags.StringVar(&data.color, options.BoxFill, box.DefaultColor, options.BoxFillDescription)
 	flags.StringVar(&data.alignment, options.Alignment, string(box.DefaultAlignment), options.AlignmentDescription)
-	flags.Float64VarP(&data.rounded, options.BoxRounded, options.BoxRoundedShort, box.DefaultRounded, options.BoxRoundedDescription)
+	flags.Float64Var(&data.rounded, options.BoxRounded, box.DefaultRounded, options.BoxRoundedDescription)
 	flags.Float64Var(&data.gap, options.BoxGap, box.DefaultGap, options.BoxGapDescription)
 	return nil
+}
+
+func (b *BoxPainter) Draw(options *painter.PainterOptions) []string {
+	painter := box.New(options, b.data.toOptions(options.Width, options.Height))
+	b.painter = painter
+	return painter.Draw()
+}
+
+func (b *BoxPainter) Painter() painter.Painter {
+	return b.painter
+}
+
+type boxData struct {
+	color     string
+	alignment string
+	height    float64
+	width     float64
+	rounded   float64
+	gap       float64
 }
 
 func (b *boxData) validateBoxOptions() (errList []error) {
@@ -80,36 +99,16 @@ func (b *boxData) validateBoxOptions() (errList []error) {
 	return errList
 }
 
-func (b *BoxPainter) Draw(data *[]float64) []string {
-	painter := box.New(&painter.PainterOptions{
-		Data: *data,
-	}, b.data.toOptions())
-	return painter.Draw()
-}
-
-func (b *boxData) toOptions() *box.BoxOptions {
+func (b *boxData) toOptions(width float64, height float64) *box.BoxOptions {
 	p := &box.BoxOptions{
 		Alignment: box.Alignment(b.alignment),
 		Color:     b.color,
-		BoxHeight: b.height,
-		BoxWidth:  b.width,
+		BoxHeight: height,
+		BoxWidth:  width,
 		Rounded:   b.rounded,
-		Gap:       b.rounded,
+		Gap:       b.gap,
 	}
 	return p
-}
-
-func (b *BoxPainter) Painter() painter.Painter {
-	return b.painter
-}
-
-type boxData struct {
-	color     string
-	alignment string
-	height    float64
-	width     float64
-	rounded   float64
-	gap       float64
 }
 
 func newBoxData() *boxData {

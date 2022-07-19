@@ -25,7 +25,7 @@ func (vl *VisitorList) File(recursive bool, useStdout bool, paths ...string) *Vi
 			continue
 		}
 
-		visitors, err := expandPathsToFileVisitors(p, recursive, useStdout, SupportedFileExtensions)
+		visitors, err := expandPathsToFileVisitors(p, recursive, SupportedFileExtensions)
 		if err != nil {
 			vl.errors = append(vl.errors, fmt.Errorf("error reading %q: %w", p, err))
 		}

@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/pflag"
 	"github.com/zoomoid/waveman/v2/cmd/options"
 	"github.com/zoomoid/waveman/v2/pkg/painter"
@@ -12,14 +10,6 @@ type filenameOptions struct {
 	filenames []string
 	recursive bool
 	output    string
-}
-
-func (o *filenameOptions) validate(useStdout bool) []error {
-	var errors []error
-	if !useStdout && len(o.filenames) > 1 {
-		errors = append(errors, fmt.Errorf("cannot use multiple files with stdout target, use --output file"))
-	}
-	return errors
 }
 
 type sharedPainterOptions struct {

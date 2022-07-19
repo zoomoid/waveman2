@@ -102,7 +102,7 @@ func expandIfGlob(pattern string) ([]string, error) {
 // Explore subdirectories iff recursive is set to true.
 // useStdout sets a flag such that during Visit, Stdout is used as a io.Writer instead of creating a new
 // file handle.
-func expandPathsToFileVisitors(paths string, recursive bool, useStdout bool, extensions []string) ([]fileVisitor, error) {
+func expandPathsToFileVisitors(paths string, recursive bool, extensions []string) ([]fileVisitor, error) {
 	var visitors []fileVisitor
 	err := filepath.WalkDir(paths, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
