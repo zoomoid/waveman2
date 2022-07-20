@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/zoomoid/waveman/v2/pkg/streams"
+	"github.com/zoomoid/waveman2/pkg/streams"
 )
 
 // creates a buffer to capture stdout writes while running Visit
@@ -43,10 +43,10 @@ func TestContinueOnError(t *testing.T) {
 	fw := []fileVisitor{
 		{
 			// path that does not exists
-			path: "../hack/Im Schatten Der Nacht.mp3",
+			path: "../../hack/Im Schatten Der Nacht.mp3",
 		},
 		{
-			path: "../hack/Morgendämmerung.mp3",
+			path: "../../hack/Morgendämmerung.mp3",
 		},
 	}
 	vl := NewVisitorList(fw, ioFactory())

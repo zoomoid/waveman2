@@ -3,7 +3,7 @@ package validation
 import (
 	"fmt"
 
-	"github.com/zoomoid/waveman/v2/pkg/transform"
+	"github.com/zoomoid/waveman2/pkg/transform"
 )
 
 func ValidateDownsamplingMode(mode string) error {

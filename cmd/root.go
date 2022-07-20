@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/rs/zerolog/log"
-	r "github.com/zoomoid/waveman/v2/cmd/reference"
-	"github.com/zoomoid/waveman/v2/pkg/streams"
+	r "github.com/zoomoid/waveman2/cmd/reference"
+	"github.com/zoomoid/waveman2/pkg/streams"
 )
 
 func Execute() {

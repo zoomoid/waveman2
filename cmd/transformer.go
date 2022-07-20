@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"github.com/spf13/pflag"
-	"github.com/zoomoid/waveman/v2/cmd/options"
-	cmdutils "github.com/zoomoid/waveman/v2/cmd/utils"
-	"github.com/zoomoid/waveman/v2/cmd/validation"
-	"github.com/zoomoid/waveman/v2/pkg/transform"
+	"github.com/zoomoid/waveman2/cmd/options"
+	cmdutils "github.com/zoomoid/waveman2/cmd/utils"
+	"github.com/zoomoid/waveman2/cmd/validation"
+	"github.com/zoomoid/waveman2/pkg/transform"
 )
 
 // transformerData captures all properties defineable by flags

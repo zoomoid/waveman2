@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/zoomoid/waveman/v2/pkg/streams"
+	"github.com/zoomoid/waveman2/pkg/streams"
 )
 
 const (

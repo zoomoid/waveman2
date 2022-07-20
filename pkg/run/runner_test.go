@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/zoomoid/waveman/v2/pkg/painter/box"
-	"github.com/zoomoid/waveman/v2/pkg/painter/line"
-	"github.com/zoomoid/waveman/v2/pkg/transform"
+	"github.com/zoomoid/waveman2/pkg/painter/box"
+	"github.com/zoomoid/waveman2/pkg/painter/line"
+	"github.com/zoomoid/waveman2/pkg/transform"
 )
 
 const (

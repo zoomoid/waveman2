@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"text/template"
 
-	"github.com/zoomoid/waveman/v2/pkg/painter"
+	"github.com/zoomoid/waveman2/pkg/painter"
 )
 
 type Interpolation string

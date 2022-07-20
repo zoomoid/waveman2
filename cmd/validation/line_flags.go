@@ -3,7 +3,7 @@ package validation
 import (
 	"fmt"
 
-	"github.com/zoomoid/waveman/v2/pkg/painter/line"
+	"github.com/zoomoid/waveman2/pkg/painter/line"
 )
 
 func ValidateInterpolation(interpolation string) error {

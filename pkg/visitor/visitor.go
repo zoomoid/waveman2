@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/zoomoid/waveman/v2/pkg/streams"
+	"github.com/zoomoid/waveman2/pkg/streams"
 )
 
 // Path takes a set of paths (recursive or not) and turns them into a list of FileVisitors,

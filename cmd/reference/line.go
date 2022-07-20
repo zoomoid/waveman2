@@ -3,12 +3,12 @@ package reference
 import (
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
-	"github.com/zoomoid/waveman/v2/cmd/options"
-	cmdutils "github.com/zoomoid/waveman/v2/cmd/utils"
-	"github.com/zoomoid/waveman/v2/cmd/validation"
-	"github.com/zoomoid/waveman/v2/pkg/painter"
-	"github.com/zoomoid/waveman/v2/pkg/painter/line"
-	"github.com/zoomoid/waveman/v2/pkg/plugin"
+	"github.com/zoomoid/waveman2/cmd/options"
+	cmdutils "github.com/zoomoid/waveman2/cmd/utils"
+	"github.com/zoomoid/waveman2/cmd/validation"
+	"github.com/zoomoid/waveman2/pkg/painter"
+	"github.com/zoomoid/waveman2/pkg/painter/line"
+	"github.com/zoomoid/waveman2/pkg/plugin"
 )
 
 var _ plugin.Plugin = &LinePainter{}

@@ -1,4 +1,4 @@
-module github.com/zoomoid/waveman/v2
+module github.com/zoomoid/waveman2
 
 go 1.18
 

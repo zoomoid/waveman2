@@ -2,7 +2,7 @@ package plugin
 
 import (
 	"github.com/spf13/pflag"
-	"github.com/zoomoid/waveman/v2/pkg/painter"
+	"github.com/zoomoid/waveman2/pkg/painter"
 )
 
 // FlagsFactory is a function type that, upon calling from the Plugin function, should register all flags the

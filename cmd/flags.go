@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/pflag"
-	"github.com/zoomoid/waveman/v2/cmd/options"
-	"github.com/zoomoid/waveman/v2/pkg/painter"
+	"github.com/zoomoid/waveman2/cmd/options"
+	"github.com/zoomoid/waveman2/pkg/painter"
 )
 
 type filenameOptions struct {
