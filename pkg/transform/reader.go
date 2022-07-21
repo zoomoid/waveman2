@@ -64,6 +64,13 @@ const (
 	PrecisionFull Precision = 1
 )
 
+const (
+	// Maximum precision alias for range checking
+	MaximumPrecision = PrecisionFull
+	// Minimum precision alias for range checking
+	MinimumPrecision = Precision128
+)
+
 type Transformer ReaderContext
 
 type ReaderContext struct {
