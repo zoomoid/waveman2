@@ -96,6 +96,12 @@ func New(painter *painter.PainterOptions, options *LineOptions) *LinePainter {
 			Width: DefaultStrokeWidth,
 		}
 	}
+	if options.Stroke.Color == "" {
+		options.Stroke.Color = DefaultStrokeColor
+	}
+	if options.Stroke.Width == "" {
+		options.Stroke.Width = DefaultStrokeWidth
+	}
 	if options.Amplitude == 0 {
 		options.Amplitude = DefaultHeight
 	}
