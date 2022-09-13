@@ -27,7 +27,7 @@ var DefaultSvgTemplate = dedent.Dedent(`
 `)
 
 type TemplateBindings struct {
-	PreserveAspectRatio bool
+	PreserveAspectRatio string
 	Width               float64
 	Height              float64
 	Elements            []string
@@ -42,8 +42,13 @@ func Template(elements []string, elWidth float64, elHeight float64, preserveAspe
 		return nil, err
 	}
 
+	preservanceKey := "keep"
+	if !preserveAspectRatio {
+		preservanceKey = "none"
+	}
+
 	bindings := &TemplateBindings{
-		PreserveAspectRatio: preserveAspectRatio,
+		PreserveAspectRatio: preservanceKey,
 		Width:               elWidth,
 		Height:              elHeight,
 		Elements:            elements,
