@@ -23,7 +23,7 @@ ARTIFACTS_DIR=dist
 release: $(UNIX_PLATFORMS) $(WINDOWS_PLATFORMS)
 
 clean:
-	rm -rf dist/
+	rm -rf bin/
 
 $(UNIX_PLATFORMS):
 	GOOS=$(os) GOARCH=$(arch) go build -v -o $(ARTIFACTS_DIR)/$(BINARY)_$(os)_$(arch)/waveman
