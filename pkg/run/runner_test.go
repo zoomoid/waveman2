@@ -67,7 +67,7 @@ func TestLine(t *testing.T) {
 		Fill:          line.DefaultFillColor,
 		Stroke: &line.Stroke{
 			Color: line.DefaultStrokeColor,
-			Width: "2px",
+			Width: 2,
 		},
 		Closed:    true,
 		Spread:    10,

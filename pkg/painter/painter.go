@@ -14,6 +14,8 @@ type Painter interface {
 	Width() float64
 	// Draw is the interface function for converting a slice of samples into SVG elements
 	Draw() []string
+	// Viewbox templates the SVG viewbox for the canvas
+	Viewbox() string
 }
 
 const (

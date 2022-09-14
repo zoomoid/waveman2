@@ -24,7 +24,7 @@ func Box(f io.Reader, transformerOptions *transform.ReaderOptions, boxOptions *b
 
 	elements := boxPainter.Draw()
 
-	svg, err := svg.Template(elements, boxPainter.Width(), boxPainter.Height(), true)
+	svg, err := svg.Template(elements, true, boxPainter.Viewbox())
 	if err != nil {
 		return "", err
 	}
@@ -46,7 +46,7 @@ func Line(f io.Reader, transformerOptions *transform.ReaderOptions, lineOptions 
 
 	elements := linePainter.Draw()
 
-	svg, err := svg.Template(elements, linePainter.Width(), linePainter.Height(), true)
+	svg, err := svg.Template(elements, true, linePainter.Viewbox())
 	if err != nil {
 		return "", err
 	}
