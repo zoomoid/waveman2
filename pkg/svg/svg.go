@@ -14,7 +14,7 @@ var DefaultSvgTemplate = dedent.Dedent(`
     baseProfile="tiny"
     preserveAspectRatio="{{ .PreserveAspectRatio }}"
     version="1.2"
-    viewBox="0 0 {{ .Width }} {{ .Height }}"
+    viewBox="{{ .Viewbox }}"
     height="100%" width="100%"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:ev="http://www.w3.org/2001/xml-events"
@@ -28,15 +28,14 @@ var DefaultSvgTemplate = dedent.Dedent(`
 
 type TemplateBindings struct {
 	PreserveAspectRatio bool
-	Width               float64
-	Height              float64
 	Elements            []string
+	Viewbox             string
 }
 
 // Template executes the default SVG template and writes all previously created SVG elements to the body
 // Returns the template as string
 // Returns an error if any failures occur.
-func Template(elements []string, elWidth float64, elHeight float64, preserveAspectRatio bool) (*bytes.Buffer, error) {
+func Template(elements []string, preserveAspectRatio bool, viewBox string) (*bytes.Buffer, error) {
 	tmpl, err := template.New("svg").Parse(DefaultSvgTemplate)
 	if err != nil {
 		return nil, err
@@ -44,9 +43,8 @@ func Template(elements []string, elWidth float64, elHeight float64, preserveAspe
 
 	bindings := &TemplateBindings{
 		PreserveAspectRatio: preserveAspectRatio,
-		Width:               elWidth,
-		Height:              elHeight,
 		Elements:            elements,
+		Viewbox:             viewBox,
 	}
 	rawBuffer := &bytes.Buffer{}
 	err = tmpl.Execute(rawBuffer, bindings)

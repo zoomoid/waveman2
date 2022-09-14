@@ -153,7 +153,7 @@ func (w *Waveman) Complete() *cobra.Command {
 					Height: o.height,
 					Width:  o.width,
 				})
-				out, err := svg.Template(elements, p.Painter().Width(), p.Painter().Height(), true)
+				out, err := svg.Template(elements, true, p.Painter().Viewbox())
 				if err != nil {
 					return err
 				}

@@ -63,7 +63,7 @@ func (l *LinePainter) Flags(flags *pflag.FlagSet) error {
 	flags.StringVar(&data.interpolation, options.Interpolation, string(line.DefaultInterpolation), options.InterpolationDescription)
 	flags.StringVar(&data.fill, options.LineFill, line.DefaultFillColor, options.LineFillDescription)
 	flags.StringVar(&data.strokeColor, options.StrokeColor, line.DefaultStrokeColor, options.StrokeColorDescription)
-	flags.StringVar(&data.strokeWidth, options.StrokeWidth, line.DefaultStrokeWidth, options.StrokeWidthDescription)
+	flags.Float64Var(&data.strokeWidth, options.StrokeWidth, line.DefaultStrokeWidth, options.StrokeWidthDescription)
 	flags.BoolVarP(&data.closed, options.Closed, options.ClosedShort, false, options.ClosedDescription)
 	flags.BoolVarP(&data.inverted, options.Inverted, options.InvertedShort, false, options.InvertedDescription)
 	return nil
@@ -108,7 +108,7 @@ type lineData struct {
 	interpolation string
 	fill          string
 	strokeColor   string
-	strokeWidth   string
+	strokeWidth   float64
 	spread        float64
 	height        float64
 	closed        bool

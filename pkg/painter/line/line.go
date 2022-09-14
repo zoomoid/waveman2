@@ -2,6 +2,7 @@ package line
 
 import (
 	"bytes"
+	"fmt"
 	"text/template"
 
 	"github.com/zoomoid/waveman2/pkg/painter"
@@ -32,7 +33,7 @@ const (
 	// Default interpolation mode
 	DefaultInterpolation Interpolation = InterpolationFritschCarlson
 	// Default stroke width
-	DefaultStrokeWidth string = "5px"
+	DefaultStrokeWidth float64 = 5
 	// Default stroke color
 	DefaultStrokeColor string = "black"
 	// Default fill color
@@ -47,7 +48,7 @@ type Stroke struct {
 	// Color is the CSS-compliant stroke color used for the path
 	Color string
 	// Width is the stroke width used for the path
-	Width string
+	Width float64
 }
 
 type LineOptions struct {
@@ -99,7 +100,7 @@ func New(painter *painter.PainterOptions, options *LineOptions) *LinePainter {
 	if options.Stroke.Color == "" {
 		options.Stroke.Color = DefaultStrokeColor
 	}
-	if options.Stroke.Width == "" {
+	if options.Stroke.Width < 0 {
 		options.Stroke.Width = DefaultStrokeWidth
 	}
 	if options.Amplitude == 0 {
@@ -176,11 +177,17 @@ func (l *LinePainter) Draw() []string {
 	pathTemplate.Execute(templateBuf, bindings)
 
 	if l.Inverted {
-		output = append(output, `<g style="transform: scaleY(-1)">`)
+		output = append(output, `<g style="transform: scaleY(-1); transform-origin: center center;">`)
 	} else {
-		output = append(output, "<g>")
+		output = append(output, `<g style="transform-origin: center center;">`)
 	}
 	output = append(output, templateBuf.String())
 	output = append(output, "</g>")
 	return output
+}
+
+func (l *LinePainter) Viewbox() string {
+	// calculate the viewBox: we need to offset the viewbox by the stroke width in all directions to not clip it
+	offset := l.Stroke.Width
+	return fmt.Sprintf("%f %f %f %f", (-1 * offset), offset, l.Width()+offset, l.Height()+2*offset)
 }
