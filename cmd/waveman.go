@@ -25,6 +25,8 @@ type Waveman struct {
 	io      *streams.IO
 }
 
+var Version = "0.0.0-dev.0"
+
 // NewWaveman creates a new cobra command and adds the relevant flags to the root command.
 // It also creates the link to the subcommands
 func NewWaveman(data *WavemanOptions, streams *streams.IO) *Waveman {
@@ -42,6 +44,7 @@ func NewWaveman(data *WavemanOptions, streams *streams.IO) *Waveman {
 		Short:   WavemanShort,
 		Long:    WavemanLong,
 		Example: WavemanExamples,
+		Version: Version,
 	}
 
 	// add transformer flags
