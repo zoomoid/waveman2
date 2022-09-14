@@ -2,6 +2,7 @@ package box
 
 import (
 	"bytes"
+	"fmt"
 	"text/template"
 
 	"github.com/zoomoid/waveman2/pkg/painter"
@@ -209,4 +210,8 @@ func (o *BoxPainter) alignBottom(index int, sample float64) *Rectangle {
 		Position:   pos,
 		Dimensions: size,
 	}
+}
+
+func (o *BoxPainter) Viewbox() string {
+	return fmt.Sprintf("0 0 %f %f", o.totalWidth, o.totalHeight)
 }
