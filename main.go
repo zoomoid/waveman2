@@ -18,6 +18,8 @@ package main
 
 import "github.com/zoomoid/waveman2/cmd"
 
+var Version = "0.0.0-dev.0"
+
 func main() {
-	cmd.Execute()
+	cmd.Execute(Version)
 }

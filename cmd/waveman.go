@@ -64,15 +64,22 @@ func NewWaveman(data *WavemanOptions, streams *streams.IO) *Waveman {
 	}
 
 	// add transformer flags
-	addTranformerFlags(cmd.Flags(), data.transformerData)
+	addTranformerFlags(cmd.PersistentFlags(), data.transformerData)
 	// add shared painter flags, like height and width
-	addDimensionFlags(cmd.Flags(), data.sharedPainterOptions)
+	addDimensionFlags(cmd.PersistentFlags(), data.sharedPainterOptions)
 	// add -f/-o/-r flags
-	addIOFlags(cmd.Flags(), data.filenameOptions)
+	addIOFlags(cmd.PersistentFlags(), data.filenameOptions)
 
 	waveman.cmd = cmd
 
 	return waveman
+}
+
+func (w *Waveman) V(version string) *Waveman {
+	// log.Debug().Msgf("Using waveman version %s", version)
+	Version = version
+	w.cmd.Version = version
+	return w
 }
 
 // WavemanOptions contains all data passed into waveman as flags
@@ -93,7 +100,7 @@ func (w *Waveman) Plugin(plugin plugin.Plugin) *Waveman {
 	}
 	w.options.plugins[painterName] = plugin
 	// add plugin flags
-	err := plugin.Flags(w.cmd.Flags())
+	err := plugin.Flags(w.cmd.PersistentFlags())
 	if err != nil {
 		log.Fatal().
 			Err(err).

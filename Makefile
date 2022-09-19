@@ -6,7 +6,7 @@ K := $(foreach exec,$(EXECUTABLES),\
 
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-BINARY_NANE=waveman
+BINARY_NAME=waveman
 PROJECT_NAME=waveman2
 VERSION?=1.0.0
 BUILD=`git rev-parse HEAD`
@@ -19,12 +19,12 @@ arch = $(word 2, $(temp))
 ARTIFACTS_DIR=dist
 
 # Setup linker flags option for build that interoperate with variable names in src code
-LDFLAGS=-ldflags "-s -w -X main.Version=${VERSION}"
+LDFLAGS=-ldflags "-s -w -X 'main.Version=${VERSION}'"
 
 release: $(UNIX_PLATFORMS) $(WINDOWS_PLATFORMS)
 
 install-dev:
-	CGO_ENABLED=0 go build $(LDFLAGS) -o /usr/local/bin/ main.go
+	CGO_ENABLED=0 go build $(LDFLAGS) -o /usr/local/bin/$(BINARY_NAME) main.go
 
 clean:
 	rm -rf dist/

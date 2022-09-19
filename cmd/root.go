@@ -22,9 +22,10 @@ import (
 	"github.com/zoomoid/waveman2/pkg/streams"
 )
 
-func Execute() {
+func Execute(version string) {
 
 	rootCmd := NewWaveman(nil, streams.DefaultStreams).
+		V(version).
 		Plugin(r.BoxPainterPlugin).
 		Plugin(r.LinePainterPlugin).
 		Complete()
