@@ -52,8 +52,15 @@ func addTranformerFlags(flags *pflag.FlagSet, data *transformerData) {
 
 func addTransformerFlagCompletion(cmd *cobra.Command) {
 	cmd.RegisterFlagCompletionFunc(options.DownsamplingMode, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return transform.DownsamplingModes, cobra.ShellCompDirectiveDefault
+		return transform.DownsamplingModes, cobra.ShellCompDirectiveNoFileComp
 	})
+	cmd.RegisterFlagCompletionFunc(options.DownsamplingFactor, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return transform.DownsamplingPrecisions, cobra.ShellCompDirectiveNoFileComp
+	})
+	cmd.RegisterFlagCompletionFunc(options.Aggregator, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return transform.Aggregators, cobra.ShellCompDirectiveNoFileComp
+	})
+	cmd.RegisterFlagCompletionFunc(options.Chunks, cobra.NoFileCompletions)
 }
 
 func (t *transformerData) validateTransformerOptions() utils.ErrorList {

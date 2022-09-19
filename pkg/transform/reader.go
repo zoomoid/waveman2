@@ -85,7 +85,7 @@ const (
 )
 
 // DownsamplingModes contains all currently supported levels as integers for Cobra flag autocompletion
-var DownsamplingPrecisions = []int{1, 2, 4, 8, 16, 32, 64, 128}
+var DownsamplingPrecisions = []string{"1", "2", "4", "8", "16", "32", "64", "128"}
 
 const (
 	// Maximum precision alias for range checking

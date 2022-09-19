@@ -66,12 +66,17 @@ func NewWaveman(data *WavemanOptions, streams *streams.IO) *Waveman {
 	// add transformer flags
 	addTranformerFlags(cmd.PersistentFlags(), data.transformerData)
 	addTransformerFlagCompletion(cmd)
+
 	// add shared painter flags, like height and width
 	addDimensionFlags(cmd.PersistentFlags(), data.sharedPainterOptions)
 	addDimensionFlagsCompletion(cmd)
+
 	// add -f/-o/-r flags
 	addIOFlags(cmd.PersistentFlags(), data.filenameOptions)
 	addIOFlagsCompletion(cmd)
+
+	// Hide completions command in autocompletion, because we don't have an imperative subcommand that does the work
+	cmd.CompletionOptions.HiddenDefaultCmd = true
 
 	waveman.cmd = cmd
 
