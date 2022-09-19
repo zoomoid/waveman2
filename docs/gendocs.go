@@ -21,7 +21,7 @@ import (
 
 	"github.com/spf13/cobra/doc"
 	"github.com/zoomoid/waveman2/cmd"
-	r "github.com/zoomoid/waveman2/cmd/reference"
+	r "github.com/zoomoid/waveman2/pkg/reference"
 	"github.com/zoomoid/waveman2/pkg/streams"
 )
 

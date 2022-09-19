@@ -4,11 +4,12 @@ waveman generates stylized visual waveforms from mp3 files. Comes with a box pai
 
 ### Synopsis
 
+
 Generate SVG waveforms for one or more mp3 files.
 
 Prints SVG to stdout when not --output is not specified. When passing in a
 directory, will create SVG files named by the mp3 source files. When the
---recursive flag is used, _all_ mp3 files below the path are used and SVG files
+--recursive flag is used, *all* mp3 files below the path are used and SVG files
 are colocated with the source mp3 files.
 
 You can configure the sample decoder/transformer in various ways: The number of
@@ -28,31 +29,29 @@ window of samples per chunks in powers of two. This means that the downsampling
 factor is given as 1/2, 1/4, 1/8, 1/16, etc., up to 1/128.
 
 To set this factor with flags, use the inverse in --downsampling-factor, e.g.
-"--downsampling-factor 16" for a downsampling factor of 1/16.
+"--downsampling-factor 16" for a downsampling factor of 1/16. 
 
-Due to I/O bottlenecks, _this is not done evenly_ throughout the file. Instead,
+Due to I/O bottlenecks, *this is not done evenly* throughout the file. Instead,
 the downsampling window of a chunk is located either at the start, the middle,
 or the end of a chunk. This behaviour can be set with --downsampling-mode, either
 "head", "center", or "tail".
 
----
-
+--------     ---------------     -----------                  -------
 | File | --> | Transformer | --> | Painter | --> Elements --> | SVG |
+--------     ---------------     -----------                  -------
 
----
-
-The reference implementation brings painters for boxes and lines. Both have
+The reference implementation brings painters for boxes and lines. Both have 
 multiple configuration options.
 
 The box painter is used by setting the --box flag. The box color can be set
 with --color. The alignment axis can be either "top", "center", or "bottom",
 and set with --alignment. --height (or -h) sets the height of highest box, thus also the
 height of the entire canvas. --width (or -w) sets the width of each box's bounding box.
---gap sets the space left between each box. Boxes are painted centered inside
-their bounding box:
+--gap sets the space left between each box. Boxes are painted centered inside 
+their bounding box: 
 
 |-------------------------------------------|
-|<- 0.5 _gap ->|----BOX----|<- 0.5_ gap ->|
+|<- 0.5 * gap ->|----BOX----|<- 0.5 * gap ->|
 |<----------------- width ----------------->|
 
 Lastly, the --rounded (or -r) parameter controls the rounding of the rectangles.
@@ -61,29 +60,30 @@ the width of the box, to look aesthetically pleasing. When using --rounded,
 each box's height will have its width as a lower bound.
 
 The line painter is used by setting the --line flag. A line's path can be closed
-by setting the --closed (or -c) flag. This will close the <path> by appending "Z"
-at the end of the data points. The resulting shape can be horizontally mirrored by
-setting --inverted (-i). This uses CSS transforms as linear transformation, rather
+by setting the --closed (or -c) flag. This will close the <path> by appending "Z" 
+at the end of the data points. The resulting shape can be horizontally mirrored by 
+setting --inverted (-i). This uses CSS transforms as linear transformation, rather 
 than computing the data points with offset.
 
-When the path is closed, the color of the enclosed shape can be set with
+When the path is closed, the color of the enclosed shape can be set with 
 --fill-color. The color of the line is set with --stroke-color, and the width of
 the line with --stroke-width. All those require SVG/CSS-compliant values for the
 attributes.
 
 Similarly to the box painter, the --height (or -h) flag controls the shape's overall
 height. --spread (or -s) controls the horizontal spacing between each of the sample
-points.
+points. 
 
-To make the line appear smoothly from a discrete set of points, we interpolate
-control points for each sample point using cubic hermetic interpolation to fit
+To make the line appear smoothly from a discrete set of points, we interpolate 
+control points for each sample point using cubic hermetic interpolation to fit 
 cubic polynomials. Namely, we implement 2 interpolation schemes: Fritsch-Carlson
-and Steffen. Details can be seen here:
-<http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation>
+and Steffen. Details can be seen here: 
+http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
 This way, the shape appears smooth. Interpolation can also be controlled with
 flags: By default, the Frisch-Carlson scheme is used; setting "--interpolation steffen"
 uses the Steffen scheme. If you want to disable interpolation entirely, set
 "--interpolation none".
+
 
 ```
 waveman [flags]
@@ -102,17 +102,17 @@ waveman --line --chunks 32 -f audio.mp3
 # Create a red box waveform with 50 blocks at 1/8 downsampling factor
 waveman --box --chunks 50 --fill-color red --downsampling-factor 8 -f audio.mp3
 
-# Create a green box waveform for *all* mp3 files in the directory at
+# Create a green box waveform for *all* mp3 files in the directory at 
 # 1/4 downsampling
 waveman --box --fill-color green --downsampling-factor 4 -f ./
 
-# Create a closed line waveform with 128 sample points and 1/64 downsampling
-# from the start of each chunk, spread apart 50 pixels, with a thicker yellow
+# Create a closed line waveform with 128 sample points and 1/64 downsampling 
+# from the start of each chunk, spread apart 50 pixels, with a thicker yellow 
 # line and flip the shape horizontally
-waveman --line --stroke-color yellow --stroke-width 5px \
- --closed --inverted --spread 50 \
- --downsampling-factor 64 --downsampling-mode head \
- -f audio.mp3
+waveman --line --stroke-color yellow --stroke-width 5px \ 
+	--closed --inverted --spread 50 \
+	--downsampling-factor 64 --downsampling-mode head \
+	-f audio.mp3
 
 ```
 
@@ -142,3 +142,9 @@ waveman --line --stroke-color yellow --stroke-width 5px \
       --stroke-width float         Width of the line's stroke (default 5)
   -w, --width float                Width of each element (default 10)
 ```
+
+### SEE ALSO
+
+* [waveman completion](waveman_completion.md)	 - Generate completion script
+
+###### Auto generated by spf13/cobra on 19-Sep-2022
