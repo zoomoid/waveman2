@@ -6,7 +6,8 @@ K := $(foreach exec,$(EXECUTABLES),\
 
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-BINARY=waveman2
+BINARY_NANE=waveman
+PROJECT_NAME=waveman2
 VERSION?=1.0.0
 BUILD=`git rev-parse HEAD`
 WINDOWS_PLATFORMS=windows/amd64 windows/386 windows/arm windows/arm64
@@ -22,26 +23,28 @@ LDFLAGS=-ldflags "-s -w -X main.Version=${VERSION}"
 
 release: $(UNIX_PLATFORMS) $(WINDOWS_PLATFORMS)
 
+install-dev:
+	CGO_ENABLED=0 go build $(LDFLAGS) -o /usr/local/bin/ main.go
+
 clean:
 	rm -rf dist/
 
 .PHONY: clean release
 
 $(UNIX_PLATFORMS): clean
-	GOOS=$(os) GOARCH=$(arch) go build -v $(LDFLAGS) -o $(ARTIFACTS_DIR)/$(BINARY)_$(os)_$(arch)/assignmentctl
-	cd $(ARTIFACTS_DIR)/$(BINARY)_$(os)_$(arch)/
-	tar -czf $(BINARY)_$(VERSION)_$(os)_$(arch).tar.gz assignmentctl
-	mv $(BINARY)_$(VERSION)_$(os)_$(arch).tar.gz ../
+	GOOS=$(os) GOARCH=$(arch) go build -v $(LDFLAGS) -o $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/$(BINARY_NANE)
+	cd $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/
+	tar -czf $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).tar.gz $(BINARY_NANE)
+	mv $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).tar.gz ../
 	cd ../
-	rm -rf $(BINARY)_$(os)_$(arch)/
+	rm -rf $(BINARY_NAME)_$(os)_$(arch)/
 
 $(WINDOWS_PLATFORMS): clean
-	GOOS=$(os) GOARCH=$(arch) go build -v $(LDFLAGS) -o $(ARTIFACTS_DIR)/$(BINARY)_$(os)_$(arch)/assignmentctl.exe
-	cd $(ARTIFACTS_DIR)/$(BINARY)_$(os)_$(arch)/
-	zip $(BINARY)_$(VERSION)_$(os)_$(arch).zip assignmentctl.exe
-	mv $(BINARY)_$(VERSION)_$(os)_$(arch).zip ../
+	GOOS=$(os) GOARCH=$(arch) go build -v $(LDFLAGS) -o $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/$(BINARY_NANE).exe
+	cd $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/
+	zip $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).zip $(BINARY_NANE).exe
+	mv $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).zip ../
 	cd ../
-	rm -rf $(BINARY)_$(os)_$(arch)/
-
+	rm -rf $(BINARY_NAME)_$(os)_$(arch)/
 
 .PHONY: clean release
