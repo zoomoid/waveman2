@@ -114,6 +114,9 @@ func (w *Waveman) Plugin(plugin plugin.Plugin) *Waveman {
 			Err(err).
 			Msg("")
 	}
+	// load each plugin's flag completion
+	plugin.Completions(w.cmd)
+
 	return w
 }
 
