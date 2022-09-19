@@ -17,6 +17,7 @@ limitations under the License.
 package cmd
 
 import (
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/zoomoid/waveman2/cmd/options"
 	"github.com/zoomoid/waveman2/pkg/painter"
@@ -42,4 +43,16 @@ func addIOFlags(flags *pflag.FlagSet, data *filenameOptions) {
 	flags.StringSliceVarP(&data.filenames, options.Filename, options.FilenameShort, nil, options.FilenameDescription)
 	flags.BoolVarP(&data.recursive, options.Recursive, options.RecursiveShort, false, options.RecursiveDescription)
 	flags.StringVarP(&data.output, options.Output, options.OutputShort, "", options.OutputDescription)
+}
+
+func addDimensionFlagsCompletion(cmd *cobra.Command) {
+	cmd.RegisterFlagCompletionFunc(options.Width, cobra.NoFileCompletions)
+	cmd.RegisterFlagCompletionFunc(options.Height, cobra.NoFileCompletions)
+}
+
+func addIOFlagsCompletion(cmd *cobra.Command) {
+	cmd.RegisterFlagCompletionFunc(options.Filename, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"mp3"}, cobra.ShellCompDirectiveFilterFileExt
+	})
+	cmd.RegisterFlagCompletionFunc(options.Output, cobra.NoFileCompletions)
 }

@@ -17,6 +17,7 @@ limitations under the License.
 package plugin
 
 import (
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/zoomoid/waveman2/pkg/painter"
 )
@@ -28,6 +29,7 @@ type FlagsFactory func(flags *pflag.FlagSet, data interface{})
 type Plugin interface {
 	Validate() error
 	Flags(flags *pflag.FlagSet) error
+	Completions(cmd *cobra.Command)
 	Data() interface{}
 	Name() string
 	Description() string
@@ -35,6 +37,8 @@ type Plugin interface {
 	Draw(*painter.PainterOptions) []string
 	Painter() painter.Painter
 }
+
+func NoCompletions(cmd *cobra.Command) {}
 
 // Plugins wraps a map of plugins to provide the visit function
 type Plugins map[string]Plugin

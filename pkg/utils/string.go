@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cmdutils
+package utils
 
 // Empty is the map element, as we only want to check existence of keys
 type Empty struct{}

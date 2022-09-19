@@ -18,13 +18,14 @@ package reference
 
 import (
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/zoomoid/waveman2/cmd/options"
-	cmdutils "github.com/zoomoid/waveman2/cmd/utils"
 	"github.com/zoomoid/waveman2/cmd/validation"
 	"github.com/zoomoid/waveman2/pkg/painter"
 	"github.com/zoomoid/waveman2/pkg/painter/line"
 	"github.com/zoomoid/waveman2/pkg/plugin"
+	options "github.com/zoomoid/waveman2/pkg/reference/options/line"
+	"github.com/zoomoid/waveman2/pkg/utils"
 )
 
 var _ plugin.Plugin = &LinePainter{}
@@ -63,7 +64,7 @@ func (l *LinePainter) Data() interface{} {
 
 func (l *LinePainter) Validate() error {
 	errs := l.data.validateLineOptions()
-	errlist := cmdutils.NewErrorList(errs)
+	errlist := utils.NewErrorList(errs)
 	if errlist == nil {
 		return nil
 	}
@@ -83,6 +84,17 @@ func (l *LinePainter) Flags(flags *pflag.FlagSet) error {
 	flags.BoolVarP(&data.closed, options.Closed, options.ClosedShort, false, options.ClosedDescription)
 	flags.BoolVarP(&data.inverted, options.Inverted, options.InvertedShort, false, options.InvertedDescription)
 	return nil
+}
+
+func (l *LinePainter) Completions(cmd *cobra.Command) {
+	cmd.RegisterFlagCompletionFunc(options.Interpolation, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return line.Interpolations, cobra.ShellCompDirectiveDefault
+	})
+	cmd.RegisterFlagCompletionFunc(options.LineFill, cobra.NoFileCompletions)
+	cmd.RegisterFlagCompletionFunc(options.StrokeColor, cobra.NoFileCompletions)
+	cmd.RegisterFlagCompletionFunc(options.StrokeWidth, cobra.NoFileCompletions)
+	cmd.RegisterFlagCompletionFunc(options.Closed, cobra.NoFileCompletions)
+	cmd.RegisterFlagCompletionFunc(options.Inverted, cobra.NoFileCompletions)
 }
 
 func (l *LinePainter) Draw(options *painter.PainterOptions) []string {

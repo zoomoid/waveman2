@@ -41,6 +41,8 @@ const (
 	InterpolationEmpty Interpolation = ""
 )
 
+var Interpolations = []string{"fritsch-carlson", "none", "steffen"}
+
 const (
 	DefaultPathTemplate string = `<path d="{{.Points}}" fill="{{.Fill}}" stroke="{{.Stroke.Color}}" stroke-width="{{.Stroke.Width}}" />`
 )

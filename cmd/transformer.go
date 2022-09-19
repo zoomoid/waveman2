@@ -17,11 +17,12 @@ limitations under the License.
 package cmd
 
 import (
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/zoomoid/waveman2/cmd/options"
-	cmdutils "github.com/zoomoid/waveman2/cmd/utils"
 	"github.com/zoomoid/waveman2/cmd/validation"
 	"github.com/zoomoid/waveman2/pkg/transform"
+	"github.com/zoomoid/waveman2/pkg/utils"
 )
 
 // transformerData captures all properties defineable by flags
@@ -49,7 +50,13 @@ func addTranformerFlags(flags *pflag.FlagSet, data *transformerData) {
 	flags.IntVarP(&data.chunks, options.Chunks, options.ChunksShort, transform.DefaultChunks, options.ChunksDescription)
 }
 
-func (t *transformerData) validateTransformerOptions() cmdutils.ErrorList {
+func addTransformerFlagCompletion(cmd *cobra.Command) {
+	cmd.RegisterFlagCompletionFunc(options.DownsamplingMode, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return transform.DownsamplingModes, cobra.ShellCompDirectiveDefault
+	})
+}
+
+func (t *transformerData) validateTransformerOptions() utils.ErrorList {
 	errList := []error{}
 	if err := validation.ValidateDownsamplingFactor(t.downsamplingFactor); err != nil {
 		errList = append(errList, err)
@@ -63,7 +70,7 @@ func (t *transformerData) validateTransformerOptions() cmdutils.ErrorList {
 	if err := validation.ValidateAggregator(t.aggregator); err != nil {
 		errList = append(errList, err)
 	}
-	return cmdutils.NewErrorList(errList)
+	return utils.NewErrorList(errList)
 }
 
 func (t *transformerData) toOptions() *transform.ReaderOptions {

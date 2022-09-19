@@ -32,6 +32,8 @@ const (
 	DownsamplingEmpty  DownsamplingMode = ""
 )
 
+var DownsamplingModes = []string{"center", "head", "tail", "none"}
+
 type Aggregator string
 
 const (
@@ -42,6 +44,8 @@ const (
 	AggregatorRootMeanSquare Aggregator = "rms"
 	AggregatorEmpty          Aggregator = ""
 )
+
+var Aggregators = []string{"rms", "mean-square", "rounded-avg", "avg", "max"}
 
 var (
 	ErrNoFile                error            = errors.New("no file given")
@@ -79,6 +83,9 @@ const (
 	// Highest level of precision, samples are used as-is
 	PrecisionFull Precision = 1
 )
+
+// DownsamplingModes contains all currently supported levels as integers for Cobra flag autocompletion
+var DownsamplingPrecisions = []int{1, 2, 4, 8, 16, 32, 64, 128}
 
 const (
 	// Maximum precision alias for range checking
@@ -272,6 +279,7 @@ func (r *ReaderContext) downsampleCenter(block [][2]float64, chunk int) (int, er
 	return r.samplesPerChunk, nil
 }
 
+// Deprecated for performance reasons, seeking this much causes way too much I/O
 // func (r *ReaderContext) downsampleEvenly(block [][2]float64) (n int, err error) {
 // 	t := time.Now()
 // 	for i := 0; i < r.samplesPerChunk; i++ {

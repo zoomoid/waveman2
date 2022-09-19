@@ -18,13 +18,14 @@ package reference
 
 import (
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/zoomoid/waveman2/cmd/options"
-	cmdutils "github.com/zoomoid/waveman2/cmd/utils"
 	"github.com/zoomoid/waveman2/cmd/validation"
 	"github.com/zoomoid/waveman2/pkg/painter"
 	"github.com/zoomoid/waveman2/pkg/painter/box"
 	"github.com/zoomoid/waveman2/pkg/plugin"
+	options "github.com/zoomoid/waveman2/pkg/reference/options/box"
+	"github.com/zoomoid/waveman2/pkg/utils"
 )
 
 var _ plugin.Plugin = &BoxPainter{}
@@ -63,7 +64,7 @@ func (b *BoxPainter) Data() interface{} {
 
 func (b *BoxPainter) Validate() error {
 	errs := b.data.validateBoxOptions()
-	errlist := cmdutils.NewErrorList(errs)
+	errlist := utils.NewErrorList(errs)
 	if errlist == nil {
 		return nil
 	}
@@ -81,6 +82,15 @@ func (b *BoxPainter) Flags(flags *pflag.FlagSet) error {
 	flags.Float64Var(&data.rounded, options.BoxRounded, box.DefaultRounded, options.BoxRoundedDescription)
 	flags.Float64Var(&data.gap, options.BoxGap, box.DefaultGap, options.BoxGapDescription)
 	return nil
+}
+
+func (b *BoxPainter) Completions(cmd *cobra.Command) {
+	cmd.RegisterFlagCompletionFunc(options.BoxFill, cobra.NoFileCompletions)
+	cmd.RegisterFlagCompletionFunc(options.Alignment, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return box.Alignments, cobra.ShellCompDirectiveDefault
+	})
+	cmd.RegisterFlagCompletionFunc(options.BoxRounded, cobra.NoFileCompletions)
+	cmd.RegisterFlagCompletionFunc(options.BoxGap, cobra.NoFileCompletions)
 }
 
 func (b *BoxPainter) Draw(options *painter.PainterOptions) []string {

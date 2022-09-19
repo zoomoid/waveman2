@@ -23,14 +23,14 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/zoomoid/waveman2/cmd/options"
-	r "github.com/zoomoid/waveman2/cmd/reference"
-	cmdutils "github.com/zoomoid/waveman2/cmd/utils"
 	"github.com/zoomoid/waveman2/cmd/validation"
 	"github.com/zoomoid/waveman2/pkg/painter"
 	"github.com/zoomoid/waveman2/pkg/plugin"
+	r "github.com/zoomoid/waveman2/pkg/reference"
 	"github.com/zoomoid/waveman2/pkg/streams"
 	"github.com/zoomoid/waveman2/pkg/svg"
 	"github.com/zoomoid/waveman2/pkg/transform"
+	"github.com/zoomoid/waveman2/pkg/utils"
 	"github.com/zoomoid/waveman2/pkg/visitor"
 )
 
@@ -65,10 +65,13 @@ func NewWaveman(data *WavemanOptions, streams *streams.IO) *Waveman {
 
 	// add transformer flags
 	addTranformerFlags(cmd.PersistentFlags(), data.transformerData)
+	addTransformerFlagCompletion(cmd)
 	// add shared painter flags, like height and width
 	addDimensionFlags(cmd.PersistentFlags(), data.sharedPainterOptions)
+	addDimensionFlagsCompletion(cmd)
 	// add -f/-o/-r flags
 	addIOFlags(cmd.PersistentFlags(), data.filenameOptions)
+	addIOFlagsCompletion(cmd)
 
 	waveman.cmd = cmd
 
@@ -157,7 +160,7 @@ func (w *Waveman) Complete() *cobra.Command {
 		visitors, errs := visitor.ExpandPaths(filenames, recursive, useStdout, w.io)
 
 		// catch any errors encountered in the process
-		if el := cmdutils.NewErrorList(errs); errs != nil {
+		if el := utils.NewErrorList(errs); errs != nil {
 			log.Fatal().Msg(el.Error())
 		}
 
@@ -190,6 +193,8 @@ func (w *Waveman) Complete() *cobra.Command {
 
 		return err
 	}
+
+	addShellCompletionSubcommand(w.cmd)
 
 	return w.cmd
 }
@@ -268,7 +273,7 @@ func (o *WavemanOptions) Validate() error {
 		return false
 	})
 
-	if err := cmdutils.NewErrorList(errs); err != nil {
+	if err := utils.NewErrorList(errs); err != nil {
 		return errors.New(err.Error())
 	}
 	return nil

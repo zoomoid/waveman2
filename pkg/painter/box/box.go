@@ -38,6 +38,8 @@ const (
 	AlignmentEmpty Alignment = ""
 )
 
+var Alignments = []string{"center", "top", "bottom"}
+
 const (
 	DefaultRectangleTemplate = `<rect width="{{.Width}}" height="{{.Height}}" x="{{.X}}" y="{{.Y}}" rx="{{.Rounded}}" ry="{{.Rounded}}" fill="{{.Color}}" />`
 )
