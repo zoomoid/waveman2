@@ -32,17 +32,17 @@ clean:
 .PHONY: clean release
 
 $(UNIX_PLATFORMS): clean
-	GOOS=$(os) GOARCH=$(arch) go build -v $(LDFLAGS) -o $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/$(BINARY_NANE)
+	GOOS=$(os) GOARCH=$(arch) go build -v $(LDFLAGS) -o $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/$(BINARY_NAME)
 	cd $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/
-	tar -czf $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).tar.gz $(BINARY_NANE)
+	tar -czf $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).tar.gz $(BINARY_NAME)
 	mv $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).tar.gz ../
 	cd ../
 	rm -rf $(BINARY_NAME)_$(os)_$(arch)/
 
 $(WINDOWS_PLATFORMS): clean
-	GOOS=$(os) GOARCH=$(arch) go build -v $(LDFLAGS) -o $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/$(BINARY_NANE).exe
+	GOOS=$(os) GOARCH=$(arch) go build -v $(LDFLAGS) -o $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/$(BINARY_NAME).exe
 	cd $(ARTIFACTS_DIR)/$(BINARY_NAME)_$(os)_$(arch)/
-	zip $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).zip $(BINARY_NANE).exe
+	zip $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).zip $(BINARY_NAME).exe
 	mv $(BINARY_NAME)_$(VERSION)_$(os)_$(arch).zip ../
 	cd ../
 	rm -rf $(BINARY_NAME)_$(os)_$(arch)/
