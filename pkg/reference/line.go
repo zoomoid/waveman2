@@ -88,7 +88,7 @@ func (l *LinePainter) Flags(flags *pflag.FlagSet) error {
 
 func (l *LinePainter) Completions(cmd *cobra.Command) {
 	cmd.RegisterFlagCompletionFunc(options.Interpolation, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return line.Interpolations, cobra.ShellCompDirectiveDefault
+		return line.Interpolations, cobra.ShellCompDirectiveNoFileComp
 	})
 	cmd.RegisterFlagCompletionFunc(options.LineFill, cobra.NoFileCompletions)
 	cmd.RegisterFlagCompletionFunc(options.StrokeColor, cobra.NoFileCompletions)

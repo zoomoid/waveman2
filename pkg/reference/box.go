@@ -87,7 +87,7 @@ func (b *BoxPainter) Flags(flags *pflag.FlagSet) error {
 func (b *BoxPainter) Completions(cmd *cobra.Command) {
 	cmd.RegisterFlagCompletionFunc(options.BoxFill, cobra.NoFileCompletions)
 	cmd.RegisterFlagCompletionFunc(options.Alignment, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return box.Alignments, cobra.ShellCompDirectiveDefault
+		return box.Alignments, cobra.ShellCompDirectiveNoFileComp
 	})
 	cmd.RegisterFlagCompletionFunc(options.BoxRounded, cobra.NoFileCompletions)
 	cmd.RegisterFlagCompletionFunc(options.BoxGap, cobra.NoFileCompletions)
