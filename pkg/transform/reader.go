@@ -1,5 +1,5 @@
 /*
-Copyright 2022 zoomoid.
+Copyright 2022-2023 zoomoid.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -45,15 +45,35 @@ const (
 	AggregatorEmpty          Aggregator = ""
 )
 
+type WindowAlgorithm int
+
+const (
+	Rectangular WindowAlgorithm = iota
+	Hann
+	Tukey
+	PlanckTaper
+)
+
 var Aggregators = []string{"rms", "mean-square", "rounded-avg", "avg", "max"}
 
 var (
-	ErrNoFile                error            = errors.New("no file given")
+	ErrNoFile error = errors.New("no file given")
+
 	DefaultAggregator        Aggregator       = AggregatorRootMeanSquare
 	DefaultRoundingPrecision uint             = 3
 	DefaultDownsamplingMode  DownsamplingMode = DownsamplingCenter
 	DefaultPrecision         Precision        = PrecisionFull
 	DefaultChunks            int              = 64
+	DefaultWindowParameter   float64          = 0
+	DefaultWindowAlgorithm   WindowAlgorithm  = Hann
+	DefaultClipping          *Clamping        = &Clamping{
+		Min: 0,
+		Max: 1,
+	}
+	DefaultWindow *Window = &Window{
+		Algorithm: Rectangular,
+		P:         0,
+	}
 )
 
 type ReaderOptions struct {
@@ -61,6 +81,19 @@ type ReaderOptions struct {
 	Aggregator   Aggregator
 	Precision    Precision
 	Downsampling DownsamplingMode
+
+	Window   *Window
+	Clamping *Clamping
+}
+
+type Window struct {
+	Algorithm WindowAlgorithm
+	P         float64
+}
+
+type Clamping struct {
+	Min float64
+	Max float64
 }
 
 type Precision int
@@ -107,6 +140,9 @@ type ReaderContext struct {
 	samplesPerChunk    int
 	singleSampleBuffer [][2]float64
 	downsampling       DownsamplingMode
+	clipping           *Clamping
+	windowParam        float64
+	windowAlgo         WindowAlgorithm
 }
 
 func New(options *ReaderOptions, reader io.Reader) (*ReaderContext, error) {
@@ -116,9 +152,12 @@ func New(options *ReaderOptions, reader io.Reader) (*ReaderContext, error) {
 	if options.Aggregator == AggregatorEmpty {
 		options.Aggregator = DefaultAggregator
 	}
-	// if options.Filename == "" {
-	// 	return nil, ErrNoFile
-	// }
+	if options.Clamping == nil {
+		options.Clamping = DefaultClipping
+	}
+	if options.Window == nil {
+		options.Window = DefaultWindow
+	}
 	if options.Precision == 0 {
 		options.Precision = DefaultPrecision
 	}
@@ -135,6 +174,7 @@ func New(options *ReaderOptions, reader io.Reader) (*ReaderContext, error) {
 	blocks := make([]float64, options.Chunks)
 	samplesPerChunk := (chunkSize / DefaultGoMp3FrameWidth) / int(options.Precision)
 	singleSampleBuffer := make([][2]float64, 1)
+
 	ctx := &ReaderContext{
 		chunks:             options.Chunks,
 		mode:               options.Aggregator,
@@ -146,6 +186,9 @@ func New(options *ReaderOptions, reader io.Reader) (*ReaderContext, error) {
 		samplesPerChunk:    samplesPerChunk,
 		singleSampleBuffer: singleSampleBuffer,
 		downsampling:       options.Downsampling,
+		windowParam:        options.Window.P,
+		windowAlgo:         options.Window.Algorithm,
+		clipping:           options.Clamping,
 	}
 
 	err = ctx.process()
@@ -213,6 +256,21 @@ func (r *ReaderContext) process() error {
 
 	// last step is to normalize the block range to [0,1]
 	r.blocks = normalize(r.blocks)
+	for idx, sample := range r.blocks {
+		r.blocks[idx] = clamp(sample, r.clipping.Min, r.clipping.Max)
+	}
+
+	switch r.windowAlgo {
+	case Hann:
+		r.blocks = hann(r.blocks, r.windowParam)
+	case Tukey:
+		r.blocks = tukey(r.blocks, r.windowParam)
+	case PlanckTaper:
+		r.blocks = planck_taper(r.blocks, r.windowParam)
+	case Rectangular:
+		// rectangular window over the entire range equals no window
+	default:
+	}
 
 	return nil
 }
@@ -278,22 +336,3 @@ func (r *ReaderContext) downsampleCenter(block [][2]float64, chunk int) (int, er
 	}
 	return r.samplesPerChunk, nil
 }
-
-// Deprecated for performance reasons, seeking this much causes way too much I/O
-// func (r *ReaderContext) downsampleEvenly(block [][2]float64) (n int, err error) {
-// 	t := time.Now()
-// 	for i := 0; i < r.samplesPerChunk; i++ {
-// 		_, err := r.decoder.read(r.singleSampleBuffer)
-// 		if err != nil {
-// 			return 0, err
-// 		}
-// 		block[i] = r.singleSampleBuffer[0]
-// 		seekSize := (int(r.precision) - 1) * DefaultGoMp3FrameWidth
-// 		_, err = r.decoder.seek(int64(seekSize), io.SeekCurrent)
-// 		if err != nil {
-// 			return 0, err
-// 		}
-// 	}
-// 	fmt.Printf("duration: %v", time.Since(t))
-// 	return len(block), nil
-// }

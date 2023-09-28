@@ -17,7 +17,8 @@ limitations under the License.
 package reference
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/zoomoid/waveman2/cmd/validation"

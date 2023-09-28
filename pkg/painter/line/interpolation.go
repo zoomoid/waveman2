@@ -1,5 +1,5 @@
 /*
-Copyright 2022 zoomoid.
+Copyright 2022-2023 zoomoid.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import (
 // specify control points for the bezier curves manually. It implements the
 // Fritsch-Carlson method and follows roughly the structure of
 // https://gionkunz.github.io/chartist-js/
-func MonotonicCube(samples [][2]float64, slope func(int, []float64, []float64) []float64) string {
+func MonotonicCube(samples [][2]float64, slope func(int, []float64, []float64) []float64, startPoint [2]float64) string {
 	n := len(samples)
 
 	dxs, _, ds := calculateDeltas(samples)
@@ -35,7 +35,7 @@ func MonotonicCube(samples [][2]float64, slope func(int, []float64, []float64) [
 	ms := slope(n, ds, dxs)
 
 	segments := make([]string, 0)
-	start := "M 0 0"
+	start := fmt.Sprintf("M %f %f", startPoint[0], startPoint[1])
 	segments = append(segments, start)
 
 	for i := 0; i < n-1; i++ {

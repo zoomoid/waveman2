@@ -1,5 +1,5 @@
 /*
-Copyright 2022 zoomoid.
+Copyright 2022-2023 zoomoid.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
+	"errors"
+
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/zoomoid/waveman2/cmd/options"

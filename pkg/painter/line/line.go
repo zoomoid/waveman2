@@ -1,5 +1,5 @@
 /*
-Copyright 2022 zoomoid.
+Copyright 2022-2023 zoomoid.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,10 +31,12 @@ const (
 	InterpolationNone Interpolation = "none"
 	// InterpolationFritschCarlson applies the Fritsch-Carlson method for
 	// interpolating hermitic cubic splines to fit the data points
+	//
 	// See: http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
 	InterpolationFritschCarlson Interpolation = "fritsch-carlson"
 	// InterpolationSteffen applies the Steffen method for interpolating
-	// hermetic cubic splices to fit the data points
+	// hermetic cubic splices to fit the data points.
+	//
 	// See: http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
 	InterpolationSteffen Interpolation = "steffen"
 	// InterpolationEmpty is for catching uninitialized interpolation modes
@@ -45,21 +47,6 @@ var Interpolations = []string{"fritsch-carlson", "none", "steffen"}
 
 const (
 	DefaultPathTemplate string = `<path d="{{.Points}}" fill="{{.Fill}}" stroke="{{.Stroke.Color}}" stroke-width="{{.Stroke.Width}}" />`
-)
-
-const (
-	// Default interpolation mode
-	DefaultInterpolation Interpolation = InterpolationFritschCarlson
-	// Default stroke width
-	DefaultStrokeWidth float64 = 5
-	// Default stroke color
-	DefaultStrokeColor string = "black"
-	// Default fill color
-	DefaultFillColor string = "rgba(0 0 0 / 0.5)"
-	// Default horizontal spread of data points
-	DefaultSpread = float64(10)
-	// DefaultHeight of a canvas is 200px
-	DefaultHeight = float64(200)
 )
 
 type Stroke struct {
@@ -88,6 +75,28 @@ type LineOptions struct {
 	// Inverted transforms the SVG group to be horizontically flipped
 	Inverted bool
 }
+
+const (
+	// Default interpolation mode
+	DefaultInterpolation Interpolation = InterpolationFritschCarlson
+	// Default stroke width
+	DefaultStrokeWidth float64 = 0
+	// Default stroke color
+	DefaultStrokeColor string = "none"
+	// Default fill color
+	DefaultFillColor string = "rgba(0 0 0 / 0.5)"
+	// Default horizontal spread of data points
+	DefaultSpread = float64(10)
+	// DefaultHeight of a canvas is 200px
+	DefaultHeight = float64(200)
+)
+
+var (
+	DefaultStroke Stroke = Stroke{
+		Color: DefaultStrokeColor,
+		Width: DefaultStrokeWidth,
+	}
+)
 
 // Compile-time type checking for LinePainter to implement all functions required
 // by the Painter interface
@@ -158,23 +167,32 @@ func (l *LinePainter) Draw() []string {
 
 	// make a slice of pairs that have the spread x values and their y values
 	// paired
-	samples := make([][2]float64, 0)
-	samples = append(samples, [2]float64{0, 0})
-	for i, sample := range l.Data {
-		// offset samples in X direction by one unit of spread to account for start points
-		samples = append(samples, [2]float64{float64(i)*l.Spread + l.Spread, sample * l.Amplitude})
+	samples := make([][2]float64, 0, len(l.Data)+2)
+
+	var direction float64 = 1
+	var offset float64 = 0
+	if l.Inverted {
+		direction = -1
+		offset = l.Amplitude
 	}
 
-	samples = append(samples, [2]float64{l.Width(), 0})
+	samples = append(samples, [2]float64{0, offset})
+
+	for i, sample := range l.Data {
+		// offset samples in X direction by one unit of spread to account for start points
+		samples = append(samples, [2]float64{float64(i)*l.Spread + l.Spread, direction*l.Amplitude*sample + offset})
+	}
+
+	samples = append(samples, [2]float64{l.Width(), offset})
 
 	line := ""
 	switch l.Interpolation {
 	case InterpolationSteffen:
-		line = MonotonicCube(samples, steffen)
+		line = MonotonicCube(samples, steffen, samples[0])
 	case InterpolationNone:
 		line = None(samples)
 	case InterpolationFritschCarlson:
-		line = MonotonicCube(samples, fritschCarlson)
+		line = MonotonicCube(samples, fritschCarlson, samples[0])
 	}
 
 	if l.Closed {
@@ -194,11 +212,12 @@ func (l *LinePainter) Draw() []string {
 	templateBuf := &bytes.Buffer{}
 	pathTemplate.Execute(templateBuf, bindings)
 
-	if l.Inverted {
-		output = append(output, `<g style="transform: scaleY(-1); transform-origin: center center;">`)
-	} else {
-		output = append(output, `<g style="transform-origin: center center;">`)
-	}
+	// if l.Inverted {
+	// 	output = append(output, `<g style="transform: scaleY(-1); transform-origin: center center;">`)
+	// } else {
+	// 	output = append(output, `<g style="transform-origin: center center;">`)
+	// }
+	output = append(output, `<g style="transform-origin: center center;">`)
 	output = append(output, templateBuf.String())
 	output = append(output, "</g>")
 	return output

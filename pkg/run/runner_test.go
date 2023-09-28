@@ -1,5 +1,5 @@
 /*
-Copyright 2022 zoomoid.
+Copyright 2022-2023 zoomoid.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package run
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -48,18 +47,26 @@ func fileFactory() io.Reader {
 
 func TestBox(t *testing.T) {
 	transformerOptions := &transform.ReaderOptions{
-		Chunks:       50,
+		Chunks:       200,
 		Aggregator:   transform.AggregatorRootMeanSquare,
-		Precision:    transform.Precision8,
+		Precision:    transform.PrecisionFull,
 		Downsampling: transform.DownsamplingCenter,
+		Clamping: &transform.Clamping{
+			Min: 0.2,
+			Max: 1,
+		},
+		Window: &transform.Window{
+			Algorithm: transform.Tukey,
+			P:         0.1,
+		},
 	}
 
 	boxOptions := &box.BoxOptions{
 		Color:     "black",
 		Alignment: box.AlignmentCenter,
-		BoxHeight: 200,
-		BoxWidth:  10,
-		Rounded:   5,
+		BoxHeight: 80,
+		BoxWidth:  6,
+		Rounded:   6.0 / 2.0,
 		Gap:       2,
 	}
 
@@ -67,32 +74,53 @@ func TestBox(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Print(svg)
+	f, err := os.Create("./fixtures/TestBox.svg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = f.Write([]byte(svg))
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestLine(t *testing.T) {
 	transformerOptions := &transform.ReaderOptions{
-		Chunks:       64,
+		Chunks:       24,
 		Aggregator:   transform.AggregatorRootMeanSquare,
 		Downsampling: transform.DownsamplingCenter,
-		Precision:    transform.Precision4,
+		Precision:    transform.PrecisionFull,
+		Clamping: &transform.Clamping{
+			Min: 0.2,
+			Max: 0.9,
+		},
+		Window: &transform.Window{
+			Algorithm: transform.Tukey,
+			P:         0.05,
+		},
 	}
 
 	lineOptions := &line.LineOptions{
-		Interpolation: line.DefaultInterpolation,
-		Fill:          line.DefaultFillColor,
-		Stroke: &line.Stroke{
-			Color: line.DefaultStrokeColor,
-			Width: 2,
-		},
-		Closed:    true,
-		Spread:    10,
-		Amplitude: 50,
+		Interpolation: line.InterpolationSteffen,
+		// Fill:          line.DefaultFillColor,
+		Fill:      "black",
+		Stroke:    nil,
+		Closed:    false,
+		Spread:    25,
+		Amplitude: 100,
+		Inverted:  true,
 	}
 
 	svg, err := Line(fileFactory(), transformerOptions, lineOptions)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Print(svg)
+	f, err := os.Create("./fixtures/TestLine.svg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = f.Write([]byte(svg))
+	if err != nil {
+		t.Fatal(err)
+	}
 }

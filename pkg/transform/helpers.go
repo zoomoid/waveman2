@@ -1,5 +1,5 @@
 /*
-Copyright 2022 zoomoid.
+Copyright 2022-2023 zoomoid.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -117,4 +117,90 @@ func meanSquare(samples []float64) float64 {
 // rootMeanSquare determines the root-mean-square measure of a slice of float64 samples
 func rootMeanSquare(samples []float64) float64 {
 	return math.Sqrt(meanSquare(samples))
+}
+
+// clamp clips a value between a lower (min) and an upper bound (max)
+func clamp(value, min, max float64) float64 {
+	return math.Max(min, math.Min(max, value))
+}
+
+// tukey implements the Tukey Window function for a discrete
+// set of samples given a window parameter alpha.
+//
+// alpha is expected to be in [0,1], but for safety reasons,
+// additionally clamped to that interval.
+func tukey(samples []float64, alpha float64) []float64 {
+	// clamp alpha to [0,1]
+	alpha = clamp(alpha, 0, 1)
+	w := make([]float64, len(samples))
+	N := float64(len(samples) - 1)
+	for n := range w {
+		if 0 <= n && n < int((alpha*N)/2) {
+			s1 := (2 * math.Pi * float64(n)) / (alpha * N)
+			w[n] = 0.5 * (1.0 - math.Cos(s1))
+		} else if int((alpha*N)/2) <= n && n < int(N*(1-alpha/2)) {
+			w[n] = 1
+		} else if int(N*(1-alpha/2)) < n && n <= int(N) {
+			w[n] = w[int(N)-n]
+		} else {
+			w[n] = 0
+		}
+	}
+	// fold vectors
+	s := make([]float64, len(samples))
+	for idx, x := range samples {
+		s[idx] = w[idx] * x
+	}
+	return s
+}
+
+// hann implements the Hann Window function for a discrete
+// set of samples.
+//
+// see https://en.wikipedia.org/wiki/Window_function#Hann_and_Hamming_windows
+func hann(samples []float64, _ float64) []float64 {
+	w := make([]float64, len(samples))
+	N := float64(len(samples) - 1)
+	for n := range w {
+		if 0 <= n && n <= int(N) {
+			s1 := (2 * math.Pi * float64(n)) / N
+			w[n] = 0.5 * (1.0 - math.Cos(s1))
+		} else {
+			w[n] = 0
+		}
+	}
+	// fold vectors
+	s := make([]float64, len(samples))
+	for idx, x := range samples {
+		s[idx] = w[idx] * x
+	}
+	return s
+}
+
+// planck_taper implements the Planck-taper Window function for a discrete
+// set of samples given a window parameter eps.
+// Eps is technically not bounded, but values larger than 1 will
+// violate symmetry properties, and are thus of less use.
+//
+// see https://en.wikipedia.org/wiki/Window_function#Planck-taper_window
+func planck_taper(samples []float64, eps float64) []float64 {
+	w := make([]float64, len(samples))
+	N := float64(len(samples) - 1)
+	for n := range w {
+		if 0 <= n && n < int(eps*N) {
+			s1 := math.Exp((eps*N)/float64(n) - (eps*N)/(eps*N-float64(n)))
+			w[n] = 1 / (1 + s1)
+		} else if int(eps*N) <= n && n < int(N/2) {
+			w[n] = 1
+		} else if int(N/2) <= n && n <= int(N) {
+			w[n] = w[int(N)-n]
+		} else {
+			w[n] = 0
+		}
+	}
+	s := make([]float64, len(samples))
+	for idx, x := range samples {
+		s[idx] = w[idx] * x
+	}
+	return s
 }
