@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"text/template"
 
+	"github.com/rs/zerolog/log"
 	"github.com/zoomoid/waveman2/pkg/painter"
 )
 
@@ -74,6 +75,8 @@ type LineOptions struct {
 	Amplitude float64
 	// Inverted transforms the SVG group to be horizontically flipped
 	Inverted bool
+	// Mirrored mirros the line along the x axis
+	Mirrored bool
 }
 
 const (
@@ -165,24 +168,26 @@ func (l *LinePainter) Draw() []string {
 	pathTemplate := template.New("path")
 	pathTemplate.Parse(DefaultPathTemplate)
 
-	// make a slice of pairs that have the spread x values and their y values
-	// paired
+	// make a slice of pairs that have the spread x values and their y values paired
 	samples := make([][2]float64, 0, len(l.Data)+2)
 
-	var direction float64 = 1
-	var offset float64 = 0
+	var direction float64 = -1
+	var offset float64 = l.Amplitude
+	if l.Inverted && l.Mirrored {
+		log.Warn().Msg("LinePainter.Inverted and LinePainter.Mirrored are mutually exclusive, deactiving LinePainter.Inverted...")
+		l.Inverted = false
+	}
+
 	if l.Inverted {
-		direction = -1
-		offset = l.Amplitude
+		direction = 1
+		offset = 0
 	}
 
 	samples = append(samples, [2]float64{0, offset})
-
 	for i, sample := range l.Data {
 		// offset samples in X direction by one unit of spread to account for start points
 		samples = append(samples, [2]float64{float64(i)*l.Spread + l.Spread, direction*l.Amplitude*sample + offset})
 	}
-
 	samples = append(samples, [2]float64{l.Width(), offset})
 
 	line := ""
@@ -212,19 +217,58 @@ func (l *LinePainter) Draw() []string {
 	templateBuf := &bytes.Buffer{}
 	pathTemplate.Execute(templateBuf, bindings)
 
-	// if l.Inverted {
-	// 	output = append(output, `<g style="transform: scaleY(-1); transform-origin: center center;">`)
-	// } else {
-	// 	output = append(output, `<g style="transform-origin: center center;">`)
-	// }
 	output = append(output, `<g style="transform-origin: center center;">`)
 	output = append(output, templateBuf.String())
 	output = append(output, "</g>")
+
+	if l.Mirrored {
+		// add the samples again, but in the other direction for line continuity
+		mirrorPoints := make([][2]float64, 0, len(l.Data)+2)
+		mirrorPoints = append(mirrorPoints, [2]float64{0, offset})
+		for i, x := range l.Data {
+			mirrorPoints = append(mirrorPoints, [2]float64{float64(i)*l.Spread + l.Spread, 2*offset - (1-x)*l.Amplitude})
+		}
+		mirrorPoints = append(mirrorPoints, [2]float64{l.Width(), offset})
+
+		line := ""
+		switch l.Interpolation {
+		case InterpolationSteffen:
+			line = MonotonicCube(mirrorPoints, steffen, mirrorPoints[0])
+		case InterpolationNone:
+			line = None(mirrorPoints)
+		case InterpolationFritschCarlson:
+			line = MonotonicCube(mirrorPoints, fritschCarlson, mirrorPoints[0])
+		}
+
+		if l.Closed {
+			line += " Z\n"
+		}
+
+		bindings := struct {
+			Fill   string
+			Points string
+			Stroke *Stroke
+		}{
+			Fill:   l.Fill,
+			Points: line,
+			Stroke: l.Stroke,
+		}
+
+		pathTemplate.Execute(templateBuf, bindings)
+		output = append(output, `<g style="transform-origin: center center;">`)
+		output = append(output, templateBuf.String())
+		output = append(output, "</g>")
+	}
+
 	return output
 }
 
 func (l *LinePainter) Viewbox() string {
 	// calculate the viewBox: we need to offset the viewbox by the stroke width in all directions to not clip it
 	offset := l.Stroke.Width
-	return fmt.Sprintf("%f %f %f %f", (-1 * offset), offset, l.Width()+offset, l.Height()+2*offset)
+	mirrorMul := 1
+	if l.Mirrored {
+		mirrorMul = 2
+	}
+	return fmt.Sprintf("%f %f %f %f", (-1 * offset), offset, l.Width()+offset, float64(mirrorMul)*l.Height()+2*offset)
 }

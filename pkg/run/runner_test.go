@@ -124,3 +124,44 @@ func TestLine(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestLineMirrored(t *testing.T) {
+	transformerOptions := &transform.ReaderOptions{
+		Chunks:       24,
+		Aggregator:   transform.AggregatorRootMeanSquare,
+		Downsampling: transform.DownsamplingCenter,
+		Precision:    transform.PrecisionFull,
+		Clamping: &transform.Clamping{
+			Min: 0.2,
+			Max: 0.9,
+		},
+		Window: &transform.Window{
+			Algorithm: transform.Tukey,
+			P:         0.05,
+		},
+	}
+
+	lineOptions := &line.LineOptions{
+		Interpolation: line.InterpolationSteffen,
+		// Fill:          line.DefaultFillColor,
+		Fill:      "black",
+		Stroke:    nil,
+		Closed:    false,
+		Spread:    25,
+		Amplitude: 60,
+		Mirrored:  true,
+	}
+
+	svg, err := Line(fileFactory(), transformerOptions, lineOptions)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f, err := os.Create("./fixtures/TestLineMirrored.svg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = f.Write([]byte(svg))
+	if err != nil {
+		t.Fatal(err)
+	}
+}
