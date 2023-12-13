@@ -8,7 +8,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 BINARY_NAME=waveman
 PROJECT_NAME=waveman2
-VERSION?=1.0.0
+VERSION?=0.0.0-dev.0
 BUILD=`git rev-parse HEAD`
 WINDOWS_PLATFORMS=windows/amd64 windows/386 windows/arm windows/arm64
 UNIX_PLATFORMS=linux/amd64 linux/arm linux/arm64 linux/386 darwin/amd64
@@ -23,7 +23,7 @@ LDFLAGS=-ldflags "-s -w -X 'main.Version=${VERSION}'"
 
 release: $(UNIX_PLATFORMS) $(WINDOWS_PLATFORMS)
 
-install-dev:
+install:
 	CGO_ENABLED=0 go build $(LDFLAGS) -o /usr/local/bin/$(BINARY_NAME) main.go
 
 clean:
@@ -48,3 +48,8 @@ $(WINDOWS_PLATFORMS): clean
 	rm -rf $(BINARY_NAME)_$(os)_$(arch)/
 
 .PHONY: clean release
+
+docs:
+	cd docs && go run gendocs.go
+
+.PHONY: docs

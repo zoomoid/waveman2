@@ -71,3 +71,12 @@ func ValidateAggregator(aggregator string) error {
 	}
 	return fmt.Errorf("aggregator %s is not supported", aggregator)
 }
+
+func ValidateWindowAlgorithm(windowAlgorithm string) error {
+	a := transform.WindowAlgorithmFromString(windowAlgorithm)
+	switch a {
+	case transform.Rectangular, transform.Hann, transform.PlanckTaper, transform.Tukey:
+		return nil
+	}
+	return fmt.Errorf("window algorithm %s is not supported", windowAlgorithm)
+}

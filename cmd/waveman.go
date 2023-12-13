@@ -37,8 +37,10 @@ import (
 type Waveman struct {
 	cmd     *cobra.Command
 	options *WavemanOptions
-	painter *plugin.Plugin
-	io      *streams.IO
+
+	io *streams.IO
+
+	jobs *visitor.VisitorList
 }
 
 var Version = "0.0.0-dev.0"
@@ -108,82 +110,25 @@ func (w *Waveman) Plugin(plugin plugin.Plugin) *Waveman {
 	}
 	w.options.plugins[painterName] = plugin
 	// add plugin flags
-	err := plugin.Flags(w.cmd.PersistentFlags())
-	if err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("")
-	}
-	// load each plugin's flag completion
-	plugin.Completions(w.cmd)
 
-	return w
-}
-
-// Complete finalizes the Waveman configuration and creates a runner
-func (w *Waveman) Complete() *cobra.Command {
-	w.cmd.RunE = func(_ *cobra.Command, _ []string) error {
-		err := w.options.Validate() // run all data validations
-		if err != nil {
-			return err
-		}
-
-		// we finished all plugin registrations, so find the selected painter
-		// NOTE: this does not perform the mutual exclusivity constraint check
-		// for modes, this is done in Validate() at runtime of the cobra command
-		var selected *plugin.Plugin
-		w.options.plugins.Visit(func(plugin plugin.Plugin) bool {
-			if *plugin.Enabled() {
-				selected = &plugin
-				return true
-			}
-			return false
-		})
-
-		// handle the case where no mode flag was set
-		if selected == nil {
-			log.Fatal().Msgf("No painter selected, falling back to BoxPainter")
-		}
-
-		w.painter = selected
-
-		o := w.options
-
-		// use stdout only if a singleton file is given and the -o flag did not specify elsewise
-		// when -o is not specified, assume output to Stdout.
-		// Validation during expansion of -f flags (--recursive included) will fail if more
-		// than one input is present
-		// if more than one file is passed with -f flags, we can skip this, because then we
-		// will have to create parallel output files
-		useStdout := options.OutputType(o.output) == options.OutputTypeEmpty && len(o.filenames) <= 1
-		filenames := o.filenames
-		recursive := o.recursive
-
-		// expand all paths given to the CLI into visitors
-		visitors, errs := visitor.ExpandPaths(filenames, recursive, useStdout, w.io)
-
-		// catch any errors encountered in the process
-		if el := utils.NewErrorList(errs); errs != nil {
-			log.Fatal().Msg(el.Error())
-		}
-
-		err = visitors.
-			ContinueOnError().
-			UseStdout(useStdout).
-			Visit(func(f *visitor.File) error {
-				transformer, err := transform.New(o.transformerData.toOptions(), f.Reader())
+	pluginCmd := &cobra.Command{
+		Use:  painterName,
+		Long: plugin.Description(),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			p := plugin
+			err := w.jobs.Visit(func(f *visitor.File) error {
+				transformer, err := transform.New(w.options.transformerData.toOptions(), f.Reader())
 				if err != nil {
 					return err
 				}
 				samples := transformer.Blocks()
-				p := *w.painter
 				if p == nil {
 					return fmt.Errorf("painter is nil")
 				}
 				elements := p.Draw(&painter.PainterOptions{
 					Data:   samples,
-					Height: o.height,
-					Width:  o.width,
+					Height: w.options.height,
+					Width:  w.options.width,
 				})
 				out, err := svg.Template(elements, true, p.Painter().Viewbox())
 				if err != nil {
@@ -193,6 +138,54 @@ func (w *Waveman) Complete() *cobra.Command {
 
 				return nil
 			})
+
+			return err
+		},
+	}
+
+	err := plugin.Flags(pluginCmd.PersistentFlags())
+	if err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("failed to add flags to plugin command")
+	}
+	// load each plugin's flag completion
+	plugin.Completions(pluginCmd)
+
+	w.cmd.AddCommand(pluginCmd)
+
+	return w
+}
+
+// Complete finalizes the Waveman configuration and creates a runner
+func (w *Waveman) Complete() *cobra.Command {
+	w.cmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+		err := w.options.Validate() // run all data validations
+		if err != nil {
+			return err
+		}
+
+		// use stdout only if a singleton file is given and the -o flag did not specify elsewise
+		// when -o is not specified, assume output to Stdout.
+		// Validation during expansion of -f flags (--recursive included) will fail if more
+		// than one input is present
+		// if more than one file is passed with -f flags, we can skip this, because then we
+		// will have to create parallel output files
+		useStdout := options.OutputType(w.options.output) == options.OutputTypeEmpty && len(w.options.filenames) <= 1
+		filenames := w.options.filenames
+		recursive := w.options.recursive
+
+		// expand all paths given to the CLI into visitors
+		visitors, errs := visitor.ExpandPaths(filenames, recursive, useStdout, w.io)
+
+		// catch any errors encountered in the process
+		if el := utils.NewErrorList(errs); errs != nil {
+			log.Fatal().Msg(el.Error())
+		}
+
+		w.jobs = visitors.
+			ContinueOnError().
+			UseStdout(useStdout)
 
 		return err
 	}
@@ -248,24 +241,6 @@ func (o *WavemanOptions) Validate() error {
 	// if err := validation.ValidateFilenames(o.filenames); err != nil {
 	// 	return err
 	// }
-
-	// mutually exclude plugins
-	var mode string
-	var collision string
-	foundCollision := o.plugins.Visit(func(p plugin.Plugin) bool {
-		if *p.Enabled() {
-			if mode == "" {
-				mode = p.Name()
-			} else {
-				collision = p.Name()
-				return true // break on first collision
-			}
-		}
-		return false
-	})
-	if foundCollision {
-		return fmt.Errorf("cannnot use --%s and --%s simultaneously", mode, collision)
-	}
 
 	var errs []error
 	// Run each plugin's validation hook

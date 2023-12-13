@@ -33,6 +33,12 @@ type transformerData struct {
 	aggregator         string
 	chunks             int
 	normalize          bool
+
+	clamp *transform.Clamping
+
+	windowAlgorithm string
+
+	window *transform.Window
 }
 
 func newTransformerData() *transformerData {
@@ -42,6 +48,8 @@ func newTransformerData() *transformerData {
 		aggregator:         string(transform.DefaultAggregator),
 		chunks:             transform.DefaultChunks,
 		normalize:          false,
+		clamp:              transform.DefaultClamping,
+		window:             transform.DefaultWindow,
 	}
 }
 
@@ -51,6 +59,12 @@ func addTranformerFlags(flags *pflag.FlagSet, data *transformerData) {
 	flags.IntVar(&data.downsamplingFactor, options.DownsamplingFactor, 1, options.DownsamplingFactorDescription)
 	flags.StringVar(&data.aggregator, options.Aggregator, string(transform.DefaultAggregator), options.AggregatorDescription)
 	flags.IntVarP(&data.chunks, options.Chunks, options.ChunksShort, transform.DefaultChunks, options.ChunksDescription)
+
+	flags.Float64Var(&data.clamp.Max, options.ClampHigh, transform.DefaultClamping.Max, options.ClampHighDescription)
+	flags.Float64Var(&data.clamp.Min, options.ClampLow, transform.DefaultClamping.Min, options.ClampLowDescription)
+
+	flags.StringVar(&data.windowAlgorithm, options.WindowAlgorithm, transform.DefaultWindowAlgorithm.String(), options.WindowAlgorithmDescription)
+	flags.Float64Var(&data.window.P, options.WindowP, transform.DefaultWindowParameter, options.WindowPDescription)
 }
 
 func addTransformerFlagCompletion(cmd *cobra.Command) {
@@ -62,6 +76,9 @@ func addTransformerFlagCompletion(cmd *cobra.Command) {
 	})
 	cmd.RegisterFlagCompletionFunc(options.Aggregator, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return transform.Aggregators, cobra.ShellCompDirectiveNoFileComp
+	})
+	cmd.RegisterFlagCompletionFunc(options.WindowAlgorithm, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return transform.WindowAlgorithms, cobra.ShellCompDirectiveNoFileComp
 	})
 	cmd.RegisterFlagCompletionFunc(options.Chunks, cobra.NoFileCompletions)
 }
@@ -80,15 +97,23 @@ func (t *transformerData) validateTransformerOptions() utils.ErrorList {
 	if err := validation.ValidateAggregator(t.aggregator); err != nil {
 		errList = append(errList, err)
 	}
+	if err := validation.ValidateWindowAlgorithm(t.windowAlgorithm); err != nil {
+		errList = append(errList, err)
+	}
 	return utils.NewErrorList(errList)
 }
 
 func (t *transformerData) toOptions() *transform.ReaderOptions {
+	t.window.Algorithm = transform.WindowAlgorithmFromString(t.windowAlgorithm)
+
 	return &transform.ReaderOptions{
 		Chunks:       t.chunks,
 		Aggregator:   transform.Aggregator(t.aggregator),
 		Precision:    transform.Precision(t.downsamplingFactor),
 		Downsampling: transform.DownsamplingMode(t.downsamplingMode),
 		Normalize:    t.normalize,
+
+		Window:   t.window,
+		Clamping: t.clamp,
 	}
 }
