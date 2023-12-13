@@ -1,57 +1,47 @@
-## waveman completion
+## waveman box
 
-Generate completion script
+
 
 ### Synopsis
 
-To load completions:
-	
-	Bash:
-	
-		$ source <(waveman completion bash)
-	
-		# To load completions for each session, execute once:
-		# Linux:
-		$ waveman completion bash > /etc/bash_completion.d/waveman
-		# macOS:
-		$ waveman completion bash > $(brew --prefix)/etc/bash_completion.d/waveman
-	
-	Zsh:
-	
-		# If shell completion is not already enabled in your environment,
-		# you will need to enable it.  You can execute the following once:
-	
-		$ echo "autoload -U compinit; compinit" >> ~/.zshrc
-	
-		# To load completions for each session, execute once:
-		$ waveman completion zsh > "${fpath[1]}/_waveman"
-	
-		# You will need to start a new shell for this setup to take effect.
-	
-	fish:
-	
-		$ waveman completion fish | source
-	
-		# To load completions for each session, execute once:
-		$ waveman completion fish > ~/.config/fish/completions/waveman.fish
-	
-	PowerShell:
-	
-		PS> waveman completion powershell | Out-String | Invoke-Expression
-	
-		# To load completions for every new session, run:
-		PS> waveman completion powershell > waveman.ps1
-		# and source this file from your PowerShell profile.
-	
+
+The box painter draws a simple box for each data point.
+
+The box color can be set with --color.
+
+The alignment axis can be either "top", "center", or "bottom",
+and set with --alignment. 
+
+--height (or -h) sets the height of highest box, thus also the
+height of the entire canvas. 
+
+--width (or -w) sets the width of each box's bounding box.
+
+--gap sets the space left between each box. Boxes are painted centered inside 
+their bounding box:
+
+|-------------------------------------------|
+|<- 0.5 * gap ->|----BOX----|<- 0.5 * gap ->|
+|<----------------- width ----------------->|
+
+--rounded (or -r) parameter controls the rounding of the rectangles.
+Notably, rounding requires the boxes to have a minimum height, namely at least
+the width of the box, to look aesthetically pleasing. When using --rounded,
+each box's height will have its width as a lower bound.
+
 
 ```
-waveman completion [bash|zsh|fish|powershell]
+waveman box [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for completion
+      --alignment string   Alignment of the shapes, chose one of 'top', 'center', or 'bottom' (default "center")
+      --color string       Fill color of each box (default "black")
+      --gap float          Gap is the spacing left between each box. Boxes are centered horizonally, so half of gap is subtracted from the box's width (default 5)
+  -h, --help               help for box
+      --rounded float      Rounding factor of each box. Given in pixels. See SVG <rect> rx/ry attributes for details (default 10)
 ```
 
 ### Options inherited from parent commands

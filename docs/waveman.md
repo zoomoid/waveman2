@@ -43,73 +43,28 @@ or the end of a chunk. This behaviour can be set with --downsampling-mode, eithe
 The reference implementation brings painters for boxes and lines. Both have 
 multiple configuration options.
 
-The box painter is used by setting the --box flag. The box color can be set
-with --color. The alignment axis can be either "top", "center", or "bottom",
-and set with --alignment. --height (or -h) sets the height of highest box, thus also the
-height of the entire canvas. --width (or -w) sets the width of each box's bounding box.
---gap sets the space left between each box. Boxes are painted centered inside 
-their bounding box: 
-
-|-------------------------------------------|
-|<- 0.5 * gap ->|----BOX----|<- 0.5 * gap ->|
-|<----------------- width ----------------->|
-
-Lastly, the --rounded (or -r) parameter controls the rounding of the rectangles.
-Notably, rounding requires the boxes to have a minimum height, namely at least
-the width of the box, to look aesthetically pleasing. When using --rounded,
-each box's height will have its width as a lower bound.
-
-The line painter is used by setting the --line flag. A line's path can be closed
-by setting the --closed (or -c) flag. This will close the <path> by appending "Z" 
-at the end of the data points. The resulting shape can be horizontally mirrored by 
-setting --inverted (-i). This uses CSS transforms as linear transformation, rather 
-than computing the data points with offset.
-
-When the path is closed, the color of the enclosed shape can be set with 
---fill-color. The color of the line is set with --stroke-color, and the width of
-the line with --stroke-width. All those require SVG/CSS-compliant values for the
-attributes.
-
-Similarly to the box painter, the --height (or -h) flag controls the shape's overall
-height. --spread (or -s) controls the horizontal spacing between each of the sample
-points. 
-
-To make the line appear smoothly from a discrete set of points, we interpolate 
-control points for each sample point using cubic hermetic interpolation to fit 
-cubic polynomials. Namely, we implement 2 interpolation schemes: Fritsch-Carlson
-and Steffen. Details can be seen here: 
-http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
-This way, the shape appears smooth. Interpolation can also be controlled with
-flags: By default, the Frisch-Carlson scheme is used; setting "--interpolation steffen"
-uses the Steffen scheme. If you want to disable interpolation entirely, set
-"--interpolation none".
-
-
-```
-waveman [flags]
-```
 
 ### Examples
 
 ```
 
 # Create a black box waveform with 50 blocks for a single mp3
-waveman --box --chunks 50 -f audio.mp3
+waveman box --chunks 50 -f audio.mp3
 
 # Create a line waveform with 32 sample points for a single mp3
-waveman --line --chunks 32 -f audio.mp3
+waveman line --chunks 32 -f audio.mp3
 
 # Create a red box waveform with 50 blocks at 1/8 downsampling factor
-waveman --box --chunks 50 --fill-color red --downsampling-factor 8 -f audio.mp3
+waveman box --chunks 50 --fill-color red --downsampling-factor 8 -f audio.mp3
 
 # Create a green box waveform for *all* mp3 files in the directory at 
 # 1/4 downsampling
-waveman --box --fill-color green --downsampling-factor 4 -f ./
+waveman box --fill-color green --downsampling-factor 4 -f ./
 
 # Create a closed line waveform with 128 sample points and 1/64 downsampling 
 # from the start of each chunk, spread apart 50 pixels, with a thicker yellow 
 # line and flip the shape horizontally
-waveman --line --stroke-color yellow --stroke-width 5px \ 
+waveman line --stroke-color yellow --stroke-width 5px \ 
 	--closed --inverted --spread 50 \
 	--downsampling-factor 64 --downsampling-mode head \
 	-f audio.mp3
@@ -120,31 +75,26 @@ waveman --line --stroke-color yellow --stroke-width 5px \
 
 ```
       --aggregator string          Determines the type of aggregator function to use. Chose one of 'max', 'avg', 'rounded-avg', 'mean-square', or 'root-mean-square' (default "rms")
-      --alignment string           Alignment of the shapes, chose one of 'top', 'center', or 'bottom' (default "center")
-      --box                        Create a box waveform
   -n, --chunks int                 Chunks are the number of samples in the output of a transformation. For the Box painter, this also means the number of blocks, and for the Line painter, the number of root points of the line (default 64)
-  -c, --closed                     Whether the SVG path should be closed or left open
-      --color string               Fill color of each box (default "black")
+      --clamp-high float           Upper clipping of samples (default 1)
+      --clamp-low float            Lower clipping of samples
       --downsampling-factor int    Determines the ratio of samples being used for downsampling compared to the full chunk's length. Given in powers of two up two 128 (default 1)
       --downsampling-mode string   Determines the downsampling mode, either by sampling samples from the start, the center, or the end of a chunk
   -f, --file strings               Determines the file to be sampled, can be relative to the current working directory
-      --fill-color string          Color for the area enclosed by the line (default "rgba(0 0 0 / 0.5)")
-      --gap float                  Gap is the spacing left between each box. Boxes are centered horizonally, so half of gap is subtracted from the box's width (default 5)
   -y, --height float               Height of the shape (default 200)
   -h, --help                       help for waveman
-      --interpolation string       Interpolation mechanism to be used for smoothing the curve. Choose one of 'none', 'fritsch-carlson', or 'steffen' (default "fritsch-carlson")
-  -i, --inverted                   Whether the shape should be inverted horizontally, i.e., switch the vertical alignment from top to bottom
-      --line                       Create a line waveform
+      --normalize                  Whether or not to normalize samples to [0,1]. When running in batch mode, this loses overall levels information, as each track is normalized individually
   -o, --output string              Writes the output to a given file. If not specified, writes output to stdout
   -r, --recursive                  Searches for all mp3 files in the directory below the specified file
-      --rounded float              Rounding factor of each box. Given in pixels. See SVG <rect> rx/ry attributes for details (default 10)
-      --stroke-color string        Color of the line's stroke (default "black")
-      --stroke-width float         Width of the line's stroke (default 5)
   -w, --width float                Width of each element (default 10)
+      --window string              Window algorithm. Defaults to rectangular, which is equivalent to no windowing. Can be used with other windowing algorithms to filter high sample values at the start and end of tracks. (default "rectangular")
+      --window-p float             Window algorithm parameter. For most algorithms, this determines the steepness of the slope of the window
 ```
 
 ### SEE ALSO
 
+* [waveman box](waveman_box.md)	 - 
 * [waveman completion](waveman_completion.md)	 - Generate completion script
+* [waveman line](waveman_line.md)	 - 
 
-###### Auto generated by spf13/cobra on 19-Sep-2022
+###### Auto generated by spf13/cobra on 13-Dec-2023

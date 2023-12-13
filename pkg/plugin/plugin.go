@@ -31,9 +31,10 @@ type Plugin interface {
 	Flags(flags *pflag.FlagSet) error
 	Completions(cmd *cobra.Command)
 	Data() interface{}
+	Group() string
 	Name() string
 	Description() string
-	Enabled() *bool
+	// Enabled() *bool
 	Draw(*painter.PainterOptions) []string
 	Painter() painter.Painter
 }
