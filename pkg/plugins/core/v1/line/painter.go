@@ -112,9 +112,9 @@ type LinePainter struct {
 	*LineOptions
 }
 
-// New constructs a new Line painter with the passed options and fills in defaults
+// NewPainter constructs a new Line painter with the passed options and fills in defaults
 // for missing fields
-func New(painter *painter.PainterOptions, options *LineOptions) *LinePainter {
+func NewPainter(painter *painter.PainterOptions, options *LineOptions) *LinePainter {
 	if options.Interpolation == InterpolationEmpty {
 		options.Interpolation = DefaultInterpolation
 	}

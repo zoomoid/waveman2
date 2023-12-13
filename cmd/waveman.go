@@ -27,7 +27,6 @@ import (
 	"github.com/zoomoid/waveman2/cmd/validation"
 	"github.com/zoomoid/waveman2/pkg/painter"
 	"github.com/zoomoid/waveman2/pkg/plugin"
-	r "github.com/zoomoid/waveman2/pkg/reference"
 	"github.com/zoomoid/waveman2/pkg/streams"
 	"github.com/zoomoid/waveman2/pkg/svg"
 	"github.com/zoomoid/waveman2/pkg/transform"
@@ -141,14 +140,9 @@ func (w *Waveman) Complete() *cobra.Command {
 			return false
 		})
 
-		// handle the case where no mode flag was set, fall back to box painter
+		// handle the case where no mode flag was set
 		if selected == nil {
-			log.Warn().Msgf("No painter selected, falling back to BoxPainter")
-			plugin, ok := w.options.plugins[r.BoxMode]
-			if !ok {
-				log.Fatal().Msgf("Default box painter is not instantiated")
-			}
-			selected = &plugin
+			log.Fatal().Msgf("No painter selected, falling back to BoxPainter")
 		}
 
 		w.painter = selected

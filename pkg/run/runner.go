@@ -20,8 +20,8 @@ import (
 	"io"
 
 	"github.com/zoomoid/waveman2/pkg/painter"
-	"github.com/zoomoid/waveman2/pkg/painter/box"
-	"github.com/zoomoid/waveman2/pkg/painter/line"
+	"github.com/zoomoid/waveman2/pkg/plugins/core/v1/box"
+	"github.com/zoomoid/waveman2/pkg/plugins/core/v1/line"
 	"github.com/zoomoid/waveman2/pkg/svg"
 	"github.com/zoomoid/waveman2/pkg/transform"
 )
@@ -34,7 +34,7 @@ func Box(f io.Reader, transformerOptions *transform.ReaderOptions, boxOptions *b
 	}
 	blocks := transformer.Blocks()
 
-	boxPainter := box.New(&painter.PainterOptions{
+	boxPainter := box.NewPainter(&painter.PainterOptions{
 		Data: blocks,
 	}, boxOptions)
 
@@ -56,7 +56,7 @@ func Line(f io.Reader, transformerOptions *transform.ReaderOptions, lineOptions 
 	}
 	blocks := transformer.Blocks()
 
-	linePainter := line.New(&painter.PainterOptions{
+	linePainter := line.NewPainter(&painter.PainterOptions{
 		Data: blocks,
 	}, lineOptions)
 

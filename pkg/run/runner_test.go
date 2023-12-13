@@ -24,8 +24,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/zoomoid/waveman2/pkg/painter/box"
-	"github.com/zoomoid/waveman2/pkg/painter/line"
+	box "github.com/zoomoid/waveman2/pkg/plugins/core/v1/box"
+	line "github.com/zoomoid/waveman2/pkg/plugins/core/v1/line"
 	"github.com/zoomoid/waveman2/pkg/transform"
 )
 

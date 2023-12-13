@@ -114,9 +114,9 @@ func (o *BoxPainter) Width() float64 {
 	return o.totalWidth
 }
 
-// New constructs a new Box painter with the passed options and fills in
+// NewPainter constructs a new Box painter with the passed options and fills in
 // defaults for missing fields
-func New(painter *painter.PainterOptions, options *BoxOptions) *BoxPainter {
+func NewPainter(painter *painter.PainterOptions, options *BoxOptions) *BoxPainter {
 	if options.Color == "" {
 		options.Color = DefaultColor
 	}

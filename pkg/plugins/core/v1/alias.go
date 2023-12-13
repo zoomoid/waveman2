@@ -1,5 +1,5 @@
 /*
-Copyright 2022 zoomoid.
+Copyright 2022-2023 zoomoid.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,24 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package v1
 
 import (
-	"log"
-
-	"github.com/spf13/cobra/doc"
-	"github.com/zoomoid/waveman2/cmd"
-	corev1 "github.com/zoomoid/waveman2/pkg/plugins/core/v1"
-	"github.com/zoomoid/waveman2/pkg/streams"
+	"github.com/zoomoid/waveman2/pkg/plugins/core/v1/box"
+	"github.com/zoomoid/waveman2/pkg/plugins/core/v1/line"
 )
 
-func main() {
-	waveman := cmd.NewWaveman(nil, streams.DefaultStreams).
-		Plugin(corev1.Box).
-		Plugin(corev1.Line).
-		Complete()
-	err := doc.GenMarkdownTree(waveman, "./")
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+var Line = line.Plugin
+
+var NewLinePainter = line.NewPainter
+
+var Box = box.Plugin
+
+var NewBoxPainter = box.NewPainter

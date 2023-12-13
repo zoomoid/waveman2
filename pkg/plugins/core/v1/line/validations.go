@@ -14,21 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package validation
+package line
 
-import (
-	"fmt"
+import "fmt"
 
-	"github.com/zoomoid/waveman2/pkg/painter/line"
-)
-
-func ValidateInterpolation(interpolation string) error {
-	i := line.Interpolation(interpolation)
+func validateInterpolation(interpolation string) error {
+	i := Interpolation(interpolation)
 	switch i {
-	case line.InterpolationFritschCarlson,
-		line.InterpolationSteffen,
-		line.InterpolationNone,
-		line.InterpolationEmpty:
+	case InterpolationFritschCarlson,
+		InterpolationSteffen,
+		InterpolationNone,
+		InterpolationEmpty:
 		return nil
 	}
 	return fmt.Errorf("interpolation %s is not supported", interpolation)

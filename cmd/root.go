@@ -18,7 +18,7 @@ package cmd
 
 import (
 	"github.com/rs/zerolog/log"
-	r "github.com/zoomoid/waveman2/pkg/reference"
+	corev1 "github.com/zoomoid/waveman2/pkg/plugins/core/v1"
 	"github.com/zoomoid/waveman2/pkg/streams"
 )
 
@@ -26,8 +26,8 @@ func Execute(version string) {
 
 	rootCmd := NewWaveman(nil, streams.DefaultStreams).
 		V(version).
-		Plugin(r.BoxPainterPlugin).
-		Plugin(r.LinePainterPlugin).
+		Plugin(corev1.Box).
+		Plugin(corev1.Line).
 		Complete()
 
 	if err := rootCmd.Execute(); err != nil {

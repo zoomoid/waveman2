@@ -24,13 +24,14 @@ import (
 
 // MonotonicCube calculates the data points for an SVG path by monotonic cubic
 // hermetic interpolation such that a path appears smooth without having to
-// specify control points for the bezier curves manually. It implements the
-// Fritsch-Carlson method and follows roughly the structure of
+// specify control points for the bezier curves manually.
+//
+// It implements the Fritsch-Carlson method and follows roughly the structure of
 // https://gionkunz.github.io/chartist-js/
 func MonotonicCube(samples [][2]float64, slope func(int, []float64, []float64) []float64, startPoint [2]float64) string {
 	n := len(samples)
 
-	dxs, _, ds := calculateDeltas(samples)
+	dxs, _, ds := deltas(samples)
 
 	ms := slope(n, ds, dxs)
 
@@ -54,8 +55,9 @@ func MonotonicCube(samples [][2]float64, slope func(int, []float64, []float64) [
 	return strings.Join(segments, " ")
 }
 
-// Determine desired slope (m) at each point using Fritsch-Carlson method See:
-// http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
+// Determine desired slope (m) at each point using Fritsch-Carlson method
+//
+// See http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
 func fritschCarlson(n int, ds []float64, dxs []float64) []float64 {
 	ms := make([]float64, n)
 
@@ -75,8 +77,9 @@ func fritschCarlson(n int, ds []float64, dxs []float64) []float64 {
 	return ms
 }
 
-// Determine desired slope (m) at each point using Steffen method See:
-// http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
+// Determine desired slope (m) at each point using Steffen method
+//
+// See http://math.stackexchange.com/questions/45218/implementation-of-monotone-cubic-interpolation
 func steffen(n int, ds []float64, dxs []float64) []float64 {
 	ms := make([]float64, n)
 
@@ -101,10 +104,10 @@ func sign(d float64) float64 {
 	return 0
 }
 
-// calculateDeltas calculates the difference between a point and its next
+// deltas calculates the difference between a point and its next
 // neighbour and also the derivative, which is required for determining the
 // slope of the interpolated cubic curve in MonotonicCube
-func calculateDeltas(samples [][2]float64) (dxs []float64, dys []float64, ds []float64) {
+func deltas(samples [][2]float64) (dxs []float64, dys []float64, ds []float64) {
 	dxs = make([]float64, len(samples)-1)
 	dys = make([]float64, len(samples)-1)
 	ds = make([]float64, len(samples)-1)
