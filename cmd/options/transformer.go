@@ -22,9 +22,11 @@ const (
 	Aggregator         string = "aggregator"
 	Chunks             string = "chunks"
 	ChunksShort        string = "n"
+	Normalize          string = "normalize"
 )
 
 const (
+	NormalizeDescription          string = "Whether or not to normalize samples to [0,1]. When running in batch mode, this loses overall levels information, as each track is normalized individually"
 	DownsamplingModeDescription   string = "Determines the downsampling mode, either by sampling samples from the start, the center, or the end of a chunk"
 	DownsamplingFactorDescription string = "Determines the ratio of samples being used for downsampling compared to the full chunk's length. Given in powers of two up two 128"
 	AggregatorDescription         string = "Determines the type of aggregator function to use. Chose one of 'max', 'avg', 'rounded-avg', 'mean-square', or 'root-mean-square'"

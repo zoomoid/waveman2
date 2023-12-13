@@ -32,6 +32,7 @@ type transformerData struct {
 	downsamplingFactor int
 	aggregator         string
 	chunks             int
+	normalize          bool
 }
 
 func newTransformerData() *transformerData {
@@ -40,10 +41,12 @@ func newTransformerData() *transformerData {
 		downsamplingFactor: int(transform.DefaultPrecision),
 		aggregator:         string(transform.DefaultAggregator),
 		chunks:             transform.DefaultChunks,
+		normalize:          false,
 	}
 }
 
 func addTranformerFlags(flags *pflag.FlagSet, data *transformerData) {
+	flags.BoolVar(&data.normalize, options.Normalize, false, options.NormalizeDescription)
 	flags.StringVar(&data.downsamplingMode, options.DownsamplingMode, "", options.DownsamplingModeDescription)
 	flags.IntVar(&data.downsamplingFactor, options.DownsamplingFactor, 1, options.DownsamplingFactorDescription)
 	flags.StringVar(&data.aggregator, options.Aggregator, string(transform.DefaultAggregator), options.AggregatorDescription)
@@ -86,5 +89,6 @@ func (t *transformerData) toOptions() *transform.ReaderOptions {
 		Aggregator:   transform.Aggregator(t.aggregator),
 		Precision:    transform.Precision(t.downsamplingFactor),
 		Downsampling: transform.DownsamplingMode(t.downsamplingMode),
+		Normalize:    t.normalize,
 	}
 }

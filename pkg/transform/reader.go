@@ -82,8 +82,9 @@ type ReaderOptions struct {
 	Precision    Precision
 	Downsampling DownsamplingMode
 
-	Window   *Window
-	Clamping *Clamping
+	Normalize bool
+	Window    *Window
+	Clamping  *Clamping
 }
 
 type Window struct {
@@ -143,6 +144,7 @@ type ReaderContext struct {
 	clipping           *Clamping
 	windowParam        float64
 	windowAlgo         WindowAlgorithm
+	normalize          bool
 }
 
 func New(options *ReaderOptions, reader io.Reader) (*ReaderContext, error) {
@@ -189,6 +191,7 @@ func New(options *ReaderOptions, reader io.Reader) (*ReaderContext, error) {
 		windowParam:        options.Window.P,
 		windowAlgo:         options.Window.Algorithm,
 		clipping:           options.Clamping,
+		normalize:          options.Normalize,
 	}
 
 	err = ctx.process()
@@ -255,7 +258,9 @@ func (r *ReaderContext) process() error {
 	}
 
 	// last step is to normalize the block range to [0,1]
-	r.blocks = normalize(r.blocks)
+	if r.normalize {
+		r.blocks = normalize(r.blocks)
+	}
 	for idx, sample := range r.blocks {
 		r.blocks[idx] = clamp(sample, r.clipping.Min, r.clipping.Max)
 	}
