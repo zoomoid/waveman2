@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 )
 
 type DownsamplingMode string
@@ -47,12 +48,45 @@ const (
 
 type WindowAlgorithm int
 
+var WindowAlgorithms = []string{Rectangular.String(), Hann.String(), Tukey.String(), PlanckTaper.String()}
+
 const (
 	Rectangular WindowAlgorithm = iota
 	Hann
 	Tukey
 	PlanckTaper
 )
+
+func (a WindowAlgorithm) String() string {
+	switch a {
+	case Rectangular:
+		return "rectangular"
+	case Hann:
+		return "hann"
+	case Tukey:
+		return "tukey"
+	case PlanckTaper:
+		return "plank-taper"
+	default:
+		return ""
+	}
+}
+
+func WindowAlgorithmFromString(a string) WindowAlgorithm {
+	a = strings.ToLower(a)
+	switch a {
+	case "rect", "rectangle", "square":
+		return Rectangular
+	case "hann":
+		return Hann
+	case "tukey":
+		return Tukey
+	case "plank-taper", "plank_taper", "planktaper":
+		return PlanckTaper
+	default:
+		return Rectangular
+	}
+}
 
 var Aggregators = []string{"rms", "mean-square", "rounded-avg", "avg", "max"}
 
@@ -65,13 +99,13 @@ var (
 	DefaultPrecision         Precision        = PrecisionFull
 	DefaultChunks            int              = 64
 	DefaultWindowParameter   float64          = 0
-	DefaultWindowAlgorithm   WindowAlgorithm  = Hann
-	DefaultClipping          *Clamping        = &Clamping{
+	DefaultWindowAlgorithm   WindowAlgorithm  = Rectangular
+	DefaultClamping          *Clamping        = &Clamping{
 		Min: 0,
 		Max: 1,
 	}
 	DefaultWindow *Window = &Window{
-		Algorithm: Rectangular,
+		Algorithm: DefaultWindowAlgorithm,
 		P:         0,
 	}
 )
@@ -155,7 +189,7 @@ func New(options *ReaderOptions, reader io.Reader) (*ReaderContext, error) {
 		options.Aggregator = DefaultAggregator
 	}
 	if options.Clamping == nil {
-		options.Clamping = DefaultClipping
+		options.Clamping = DefaultClamping
 	}
 	if options.Window == nil {
 		options.Window = DefaultWindow
