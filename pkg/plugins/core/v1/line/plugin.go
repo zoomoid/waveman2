@@ -29,14 +29,16 @@ import (
 var _ plugin.Plugin = &LinePlugin{}
 
 var Plugin plugin.Plugin = &LinePlugin{
-	data:    newLineData(),
-	enabled: false,
+	data: newLineData(),
 }
 
 type LinePlugin struct {
 	data    *lineData
-	enabled bool
 	painter *LinePainter
+}
+
+func (l *LinePlugin) Group() string {
+	return group
 }
 
 func (l *LinePlugin) Name() string {
@@ -44,11 +46,7 @@ func (l *LinePlugin) Name() string {
 }
 
 func (l *LinePlugin) Description() string {
-	return "Create a line waveform"
-}
-
-func (l *LinePlugin) Enabled() *bool {
-	return &l.enabled
+	return description
 }
 
 func (l *LinePlugin) Data() interface{} {
@@ -69,12 +67,12 @@ func (l *LinePlugin) Flags(flags *pflag.FlagSet) error {
 	if !ok {
 		return errors.New("line data struct is malformed")
 	}
-	flags.BoolVar(l.Enabled(), l.Name(), false, l.Description())
 	flags.StringVar(&data.interpolation, "interpolation", string(DefaultInterpolation), "Interpolation mechanism to be used for smoothing the curve [none,fritsch-carlson,steffen]")
 	flags.StringVar(&data.fill, "fill-color", DefaultFillColor, "Color for the area enclosed by the line")
 	flags.StringVar(&data.strokeColor, "stroke-color", DefaultStrokeColor, "Color of the line's stroke")
 	flags.Float64Var(&data.strokeWidth, "stroke-width", DefaultStrokeWidth, "Width of the line's stroke")
 	flags.BoolVarP(&data.closed, "closed", "c", false, "Whether the SVG path should be closed or left open")
+	flags.BoolVar(&data.mirrored, "mirrored", false, "Whether the shape should be mirrored, creating a symmetric waveform. Note that this is not *realistic*, i.e. it does not represent positive and negative polarity of samples!")
 	flags.BoolVarP(&data.inverted, "inverted", "i", false, "Whether the shape should be inverted horizontally, i.e., switch the vertical alignment from top to bottom")
 	return nil
 }
@@ -112,6 +110,7 @@ func (l *lineData) toOptions(width float64, height float64) *LineOptions {
 		Spread:    width,
 		Amplitude: height,
 		Inverted:  l.inverted,
+		Mirrored:  l.mirrored,
 	}
 }
 
@@ -134,6 +133,7 @@ type lineData struct {
 	height        float64
 	closed        bool
 	inverted      bool
+	mirrored      bool
 }
 
 func newLineData() *lineData {
@@ -146,5 +146,6 @@ func newLineData() *lineData {
 		height:        DefaultHeight,
 		closed:        false,
 		inverted:      false,
+		mirrored:      false,
 	}
 }

@@ -29,14 +29,16 @@ import (
 var _ plugin.Plugin = &BoxPlugin{}
 
 var Plugin plugin.Plugin = &BoxPlugin{
-	data:    newBoxData(),
-	enabled: false,
+	data: newBoxData(),
 }
 
 type BoxPlugin struct {
 	data    *boxData
-	enabled bool
 	painter *BoxPainter
+}
+
+func (b *BoxPlugin) Group() string {
+	return group
 }
 
 func (b *BoxPlugin) Name() string {
@@ -44,11 +46,7 @@ func (b *BoxPlugin) Name() string {
 }
 
 func (b *BoxPlugin) Description() string {
-	return "Create a box waveform"
-}
-
-func (b *BoxPlugin) Enabled() *bool {
-	return &b.enabled
+	return description
 }
 
 func (b *BoxPlugin) Data() interface{} {
@@ -69,8 +67,6 @@ func (b *BoxPlugin) Flags(flags *pflag.FlagSet) error {
 	if !ok {
 		return errors.New("box data struct is malformed")
 	}
-	flags.BoolVar(b.Enabled(), b.Name(), false, b.Description())
-
 	flags.StringVar(&data.color, "color", DefaultColor, "Fill color of each box")
 	flags.StringVar(&data.alignment, "alignment", string(DefaultAlignment), "Alignment of the shapes, chose one of 'top', 'center', or 'bottom'")
 	flags.Float64Var(&data.rounded, "rounded", DefaultRounded, "Rounding factor of each box. Given in pixels. See SVG <rect> rx/ry attributes for details")
