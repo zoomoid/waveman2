@@ -29,6 +29,8 @@ func main() {
 	waveman := cmd.NewWaveman(nil, streams.DefaultStreams).
 		Plugin(corev1.Box).
 		Plugin(corev1.Line).
+		Plugin(corev1.Wave).
+		Plugin(corev1.Sweep).
 		Complete()
 	err := doc.GenMarkdownTree(waveman, "./")
 	if err != nil {
