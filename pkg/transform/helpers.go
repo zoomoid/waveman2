@@ -190,12 +190,11 @@ func planck_taper(samples []float64, eps float64) []float64 {
 		if 0 <= n && n < int(eps*N) {
 			s1 := math.Exp((eps*N)/float64(n) - (eps*N)/(eps*N-float64(n)))
 			w[n] = 1 / (1 + s1)
-		} else if int(eps*N) <= n && n < int(N/2) {
+		} else if int(eps*N) <= n && n <= int(N/2) {
 			w[n] = 1
-		} else if int(N/2) <= n && n <= int(N) {
-			w[n] = w[int(N)-n]
-		} else {
-			w[n] = 0
+		}
+		if 0 <= n && n <= int(N/2) {
+			w[int(N)-n] = w[n]
 		}
 	}
 	s := make([]float64, len(samples))
