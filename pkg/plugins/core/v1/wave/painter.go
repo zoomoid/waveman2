@@ -49,7 +49,7 @@ const (
 var Interpolations = []string{"fritsch-carlson", "none", "steffen", "akima"}
 
 const (
-	DefaultPathTemplate string = `<path d="{{.Path}}" stroke="{{.Stroke.Color}}" stroke-width="{{.Stroke.Width}}" />`
+	DefaultPathTemplate string = `<path d="{{.Path}}" stroke="{{.Stroke.Color}}" stroke-width="{{.Stroke.Width}}" fill="transparent" />`
 )
 
 type Stroke struct {
