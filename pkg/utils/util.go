@@ -59,7 +59,7 @@ func (el errorList) Error() string {
 	if len(el) == 1 {
 		return el[0].Error()
 	}
-	seenerrs := NewStringSet()
+	seenerrs := newStringSet()
 	res := ""
 	el.visit(func(err error) bool {
 		msg := err.Error()

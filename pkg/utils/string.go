@@ -16,29 +16,29 @@ limitations under the License.
 
 package utils
 
-// Empty is the map element, as we only want to check existence of keys
-type Empty struct{}
+// empty is the map element, as we only want to check existence of keys
+type empty struct{}
 
-// StringSet is a map of Empty structs to be used as a Set
-type StringSet map[string]Empty
+// stringSet is a map of Empty structs to be used as a Set
+type stringSet map[string]empty
 
-// NewStringSet constructs a new StringSet from the given list of strings
-func NewStringSet(items ...string) StringSet {
-	ss := StringSet{}
+// newStringSet constructs a new StringSet from the given list of strings
+func newStringSet(items ...string) stringSet {
+	ss := stringSet{}
 	ss.Insert(items...)
 	return ss
 }
 
 // Insert adds all items to the set. Already existing items are replaced
-func (s StringSet) Insert(items ...string) StringSet {
+func (s stringSet) Insert(items ...string) stringSet {
 	for _, item := range items {
-		s[item] = Empty{}
+		s[item] = empty{}
 	}
 	return s
 }
 
 // Delete removes elements from the map
-func (s StringSet) Delete(items ...string) StringSet {
+func (s stringSet) Delete(items ...string) stringSet {
 	for _, item := range items {
 		delete(s, item)
 	}
@@ -46,12 +46,12 @@ func (s StringSet) Delete(items ...string) StringSet {
 }
 
 // Has returns true if an item is already contained in the set
-func (s StringSet) Has(item string) bool {
+func (s stringSet) Has(item string) bool {
 	_, contained := s[item]
 	return contained
 }
 
 // Len is the canonic length of the underlying map
-func (s StringSet) Len() int {
+func (s stringSet) Len() int {
 	return len(s)
 }
