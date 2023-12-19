@@ -17,8 +17,8 @@ limitations under the License.
 package box
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 	"text/template"
 
 	"github.com/zoomoid/waveman2/pkg/painter"
@@ -142,23 +142,21 @@ func NewPainter(painter *painter.PainterOptions, options *BoxOptions) *BoxPainte
 // sample, an SVG rectangle is created, and all of them are wrapped inside an
 // SVG group element.
 func (o *BoxPainter) Draw() []string {
-	output := make([]string, 0)
+	output := &strings.Builder{}
 
 	rectTemplate := template.New("rect")
 	rectTemplate.Parse(DefaultRectangleTemplate)
 
-	output = append(output, "<g>")
+	output.WriteString("<g>")
 	for index, sample := range o.Data {
-		buf := &bytes.Buffer{}
 		if sample*o.BoxHeight < o.BoxWidth {
 			sample = (o.BoxWidth - o.Gap) / o.BoxHeight
 		}
 		rect := o.perSample(index, sample)
-		rectTemplate.Execute(buf, rect)
-		output = append(output, buf.String())
+		rectTemplate.Execute(output, rect)
 	}
-	output = append(output, "</g>")
-	return output
+	output.WriteString("</g>")
+	return []string{output.String()}
 }
 
 // perSample is the handler that creates a Rectangle struct for each sample and

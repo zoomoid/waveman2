@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package line
+package sweep
 
 import (
 	"fmt"
@@ -49,7 +49,7 @@ const (
 var Interpolations = []string{"fritsch-carlson", "none", "steffen", "akima"}
 
 const (
-	DefaultPathTemplate string = `<path d="{{.Path}}" stroke="{{.Stroke.Color}}" stroke-width="{{.Stroke.Width}}" />`
+	DefaultPathTemplate string = `<path d="{{.Path}}" fill="{{.Fill}}" stroke="{{.Stroke.Color}}" stroke-width="{{.Stroke.Width}}" />`
 )
 
 type Stroke struct {
@@ -75,8 +75,6 @@ type LineOptions struct {
 	// Amplitude is the vertical scaling factor by which all sample points are scaled
 	// up. Amplitude also determines the total canvas height when normalized samples are used
 	Amplitude float64
-	// Inverted transforms the SVG group to be horizontically flipped
-	Inverted bool
 }
 
 const (
@@ -103,9 +101,9 @@ var (
 
 // Compile-time type checking for LinePainter to implement all functions required
 // by the Painter interface
-var _ painter.Painter = &LinePainter{}
+var _ painter.Painter = &SweepPainter{}
 
-type LinePainter struct {
+type SweepPainter struct {
 	// Embed all painter options, i.e., data points
 	*painter.PainterOptions
 	// Embed all options for the line painter
@@ -114,7 +112,7 @@ type LinePainter struct {
 
 // NewPainter constructs a new Line painter with the passed options and fills in defaults
 // for missing fields
-func NewPainter(painter *painter.PainterOptions, options *LineOptions) *LinePainter {
+func NewPainter(painter *painter.PainterOptions, options *LineOptions) *SweepPainter {
 	if options.Interpolation == InterpolationEmpty {
 		options.Interpolation = DefaultInterpolation
 	}
@@ -140,7 +138,7 @@ func NewPainter(painter *painter.PainterOptions, options *LineOptions) *LinePain
 		options.Spread = DefaultSpread
 	}
 
-	return &LinePainter{
+	return &SweepPainter{
 		PainterOptions: painter,
 		LineOptions:    options,
 	}
@@ -150,12 +148,12 @@ func NewPainter(painter *painter.PainterOptions, options *LineOptions) *LinePain
 // since the interpolation does not overshoot, the maximum height, thus the
 // total height, is the same as the Height scaling, as long as normalized data
 // is passed to the painter.
-func (l *LinePainter) Height() float64 {
+func (l *SweepPainter) Height() float64 {
 	return l.Amplitude
 }
 
 // Width is the width of the canvas, that is, the width the path spans horizontally.
-func (l *LinePainter) Width() float64 {
+func (l *SweepPainter) Width() float64 {
 	return float64(len(l.PainterOptions.Data)-1)*l.Spread + 2*l.Spread
 }
 
@@ -168,21 +166,14 @@ type templateBindings struct {
 // Draw implements line drawing with optional interpolation to smooth out the curve.
 // Curves are, by default, anchored to the top-left corner. If you want to change
 // this, consider transforming the entire SVG in-post using CSS transforms.
-func (l *LinePainter) Draw() []string {
+func (l *SweepPainter) Draw() []string {
 	output := &strings.Builder{}
 
 	pathTemplate := template.New("path")
 	pathTemplate.Parse(DefaultPathTemplate)
-
-	var direction float64 = -1
-	var offset float64 = l.Amplitude
-	if l.Inverted {
-		direction = 1
-		offset = 0
-	}
+	var offset float64 = l.Amplitude / 2.0
 
 	// make a slice of pairs that have the spread x values and their y values paired
-
 	var samples [][2]float64
 
 	samples = make([][2]float64, 0, len(l.Data)+2)
@@ -193,31 +184,70 @@ func (l *LinePainter) Draw() []string {
 		// offset samples in X direction by one unit of spread to account for start points
 		samples = append(samples, [2]float64{
 			float64(i+1) * l.Spread,
-			direction*l.Amplitude*sample + offset,
+			offset - 0.5*l.Amplitude*sample,
 		})
 	}
 	// end point
 	samples = append(samples, [2]float64{l.Width(), offset})
 
-	line := ""
+	var i interpolation.Interpolator
 	switch l.Interpolation {
 	case InterpolationSteffen:
-		line = interpolation.CreateLine(samples, &interpolation.Steffen{})
-	// case InterpolationNone:
-	// 	line = interpolation.CreateLine(samples, &interpolation.PiecewiseLinear{})
+		i = &interpolation.Steffen{}
 	case InterpolationFritschCarlson:
-		line = interpolation.CreateLine(samples, &interpolation.FritschCarlson{})
+		i = &interpolation.FritschCarlson{}
 	case InterpolationAkimaSpline:
-		line = interpolation.CreateLine(samples, &interpolation.AkimaSpline{})
+		i = &interpolation.AkimaSpline{}
 	}
 
-	if l.Closed {
-		line += " Z\n"
+	// 1st pass of interpolation: this is all values above the virtual sweep axis (at offset)
+	i.Interpolate(samples)
+
+	abovePoints := i.Points()
+	belowPoints := make([]interpolation.CubicCurvePoint, len(abovePoints))
+
+	for i, p := range abovePoints {
+		belowPoints[i] = interpolation.CubicCurvePoint{
+			Root: [2]float64{p.Root[0], 2*offset - p.Root[1]},
+			C1:   [2]float64{p.C1[0], 2*offset - p.C1[1]},
+			C2:   [2]float64{p.C2[0], 2*offset - p.C2[1]},
+		}
 	}
+	n := len(belowPoints) - 1
+	// 1.2 fix ordering
+	// C x1 y1, x2 y2, x y where
+	for i := n; i > 0; i -= 1 {
+		p := belowPoints[i]
+		np := belowPoints[i-1] // "next" point in backwards direction
+
+		belowPoints[i] = interpolation.CubicCurvePoint{
+			C1:   p.C2,
+			C2:   p.C1,
+			Root: np.Root,
+		}
+	}
+
+	segmentWriter := &strings.Builder{}
+
+	fmt.Fprintf(segmentWriter, "M %g %g ", samples[0][0], samples[0][1])
+
+	// first pass. Run forwards over above points
+	for i := 0; i < len(abovePoints); i++ {
+		segmentWriter.WriteString(abovePoints[i].ToSegment())
+	}
+	m := len(abovePoints) - 1
+	// add a zero segment to reset any curvature
+	segmentWriter.WriteString(abovePoints[m].ZeroSegment())
+	// second pass. Run backwards over below points
+	for i := len(belowPoints) - 1; i >= 0; i-- {
+		segmentWriter.WriteString(belowPoints[i].ToSegment())
+	}
+	// close shape
+	segmentWriter.WriteString("Z")
 
 	bindings := templateBindings{
 		Fill:   l.Fill,
-		Path:   line,
+		Path:   segmentWriter.String(),
 		Stroke: l.Stroke,
 	}
 
@@ -228,8 +258,8 @@ func (l *LinePainter) Draw() []string {
 	return []string{output.String()}
 }
 
-func (l *LinePainter) Viewbox() string {
+func (l *SweepPainter) Viewbox() string {
 	// calculate the viewBox: we need to offset the viewbox by the stroke width in all directions to not clip it
 	offset := l.Stroke.Width
-	return fmt.Sprintf("%f %f %f %f", (-1 * offset), -1*offset, l.Width()+offset, l.Height()+offset)
+	return fmt.Sprintf("%f %f %f %f", -1*offset, -1*offset, l.Width()+offset, l.Height()+offset)
 }

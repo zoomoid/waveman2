@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package line
+package sweep
 
 import "github.com/lithammer/dedent"
 
@@ -22,7 +22,8 @@ var (
 	group string = "core/v1"
 
 	description string = dedent.Dedent(`
-		The line painter draws a line that traces each data point.
+		The sweep painter creates a shape that resembles a mirrored and closed (along the x axis)
+		version of the line painter's output
 
 		A line's path can be closed by setting the --closed (or -c) flag.
 		This will close the <path> by appending "Z" at the end of the data points.

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package line
+package wave
 
 import (
 	"fmt"
@@ -59,24 +59,17 @@ type Stroke struct {
 	Width float64
 }
 
-type LineOptions struct {
+type WaveOptions struct {
 	// Interpolation choses the point interpolation mode
 	Interpolation Interpolation
-	// Fill is the CSS-compliant color value for the fill
-	Fill string
 	// Stroke is a struct defining properties of the stroke, namely color and
 	// width
 	Stroke *Stroke
-	// Closed makes the bezier curve a closed one by appending the "Z" parameter
-	// to the path
-	Closed bool
 	// Spread is the horizontal scaling factor by which all indices are scaled
 	Spread float64
 	// Amplitude is the vertical scaling factor by which all sample points are scaled
 	// up. Amplitude also determines the total canvas height when normalized samples are used
 	Amplitude float64
-	// Inverted transforms the SVG group to be horizontically flipped
-	Inverted bool
 }
 
 const (
@@ -86,8 +79,6 @@ const (
 	DefaultStrokeWidth float64 = 0
 	// Default stroke color
 	DefaultStrokeColor string = "none"
-	// Default fill color
-	DefaultFillColor string = "rgba(0 0 0 / 0.5)"
 	// Default horizontal spread of data points
 	DefaultSpread = float64(10)
 	// DefaultHeight of a canvas is 200px
@@ -103,23 +94,20 @@ var (
 
 // Compile-time type checking for LinePainter to implement all functions required
 // by the Painter interface
-var _ painter.Painter = &LinePainter{}
+var _ painter.Painter = &WavePainter{}
 
-type LinePainter struct {
+type WavePainter struct {
 	// Embed all painter options, i.e., data points
 	*painter.PainterOptions
 	// Embed all options for the line painter
-	*LineOptions
+	*WaveOptions
 }
 
 // NewPainter constructs a new Line painter with the passed options and fills in defaults
 // for missing fields
-func NewPainter(painter *painter.PainterOptions, options *LineOptions) *LinePainter {
+func NewPainter(painter *painter.PainterOptions, options *WaveOptions) *WavePainter {
 	if options.Interpolation == InterpolationEmpty {
 		options.Interpolation = DefaultInterpolation
-	}
-	if options.Fill == "" {
-		options.Fill = DefaultFillColor
 	}
 	if options.Stroke == nil {
 		options.Stroke = &Stroke{
@@ -140,9 +128,9 @@ func NewPainter(painter *painter.PainterOptions, options *LineOptions) *LinePain
 		options.Spread = DefaultSpread
 	}
 
-	return &LinePainter{
+	return &WavePainter{
 		PainterOptions: painter,
-		LineOptions:    options,
+		WaveOptions:    options,
 	}
 }
 
@@ -150,17 +138,16 @@ func NewPainter(painter *painter.PainterOptions, options *LineOptions) *LinePain
 // since the interpolation does not overshoot, the maximum height, thus the
 // total height, is the same as the Height scaling, as long as normalized data
 // is passed to the painter.
-func (l *LinePainter) Height() float64 {
+func (l *WavePainter) Height() float64 {
 	return l.Amplitude
 }
 
 // Width is the width of the canvas, that is, the width the path spans horizontally.
-func (l *LinePainter) Width() float64 {
+func (l *WavePainter) Width() float64 {
 	return float64(len(l.PainterOptions.Data)-1)*l.Spread + 2*l.Spread
 }
 
 type templateBindings struct {
-	Fill   string
 	Path   string
 	Stroke *Stroke
 }
@@ -168,7 +155,7 @@ type templateBindings struct {
 // Draw implements line drawing with optional interpolation to smooth out the curve.
 // Curves are, by default, anchored to the top-left corner. If you want to change
 // this, consider transforming the entire SVG in-post using CSS transforms.
-func (l *LinePainter) Draw() []string {
+func (l *WavePainter) Draw() []string {
 	output := &strings.Builder{}
 
 	pathTemplate := template.New("path")
@@ -176,28 +163,30 @@ func (l *LinePainter) Draw() []string {
 
 	var direction float64 = -1
 	var offset float64 = l.Amplitude
-	if l.Inverted {
-		direction = 1
-		offset = 0
-	}
 
 	// make a slice of pairs that have the spread x values and their y values paired
 
 	var samples [][2]float64
 
-	samples = make([][2]float64, 0, len(l.Data)+2)
+	samples = make([][2]float64, 0, len(l.Data)*2+2)
+
+	axis := offset / 2.0
 
 	// start point
-	samples = append(samples, [2]float64{0, offset})
+	samples = append(samples, [2]float64{-0.25, axis})
+
 	for i, sample := range l.Data {
-		// offset samples in X direction by one unit of spread to account for start points
 		samples = append(samples, [2]float64{
-			float64(i+1) * l.Spread,
-			direction*l.Amplitude*sample + offset,
+			(float64(i+1) + 0.25) * l.Spread,
+			axis + (direction * l.Amplitude * 0.5 * sample),
+		})
+		samples = append(samples, [2]float64{
+			(float64(i+1) + 0.75) * l.Spread,
+			axis - (direction * l.Amplitude * 0.5 * sample),
 		})
 	}
-	// end point
-	samples = append(samples, [2]float64{l.Width(), offset})
+	// endpoint
+	samples = append(samples, [2]float64{l.Width() + 0.25, axis})
 
 	line := ""
 	switch l.Interpolation {
@@ -211,12 +200,7 @@ func (l *LinePainter) Draw() []string {
 		line = interpolation.CreateLine(samples, &interpolation.AkimaSpline{})
 	}
 
-	if l.Closed {
-		line += " Z\n"
-	}
-
 	bindings := templateBindings{
-		Fill:   l.Fill,
 		Path:   line,
 		Stroke: l.Stroke,
 	}
@@ -228,8 +212,8 @@ func (l *LinePainter) Draw() []string {
 	return []string{output.String()}
 }
 
-func (l *LinePainter) Viewbox() string {
+func (l *WavePainter) Viewbox() string {
 	// calculate the viewBox: we need to offset the viewbox by the stroke width in all directions to not clip it
 	offset := l.Stroke.Width
-	return fmt.Sprintf("%f %f %f %f", (-1 * offset), -1*offset, l.Width()+offset, l.Height()+offset)
+	return fmt.Sprintf("%f %f %f %f", -1*offset, -1*offset, l.Width()+offset, l.Height()+offset)
 }

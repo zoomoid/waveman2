@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package line
+package wave
 
 import "github.com/lithammer/dedent"
 
@@ -22,22 +22,12 @@ var (
 	group string = "core/v1"
 
 	description string = dedent.Dedent(`
-		The line painter draws a line that traces each data point.
+		The wave painter draws a line that oscillates around a virtal zero axis, using the sample values as
+		wave peaks and valleys
 
-		A line's path can be closed by setting the --closed (or -c) flag.
-		This will close the <path> by appending "Z" at the end of the data points.
-
-		When the path is closed, the color of the enclosed shape can be set with 
-		--fill-color.
-		
 		The color of the line is set with --stroke-color, and the width of the line 
 		with --stroke-width. All those require SVG/CSS-compliant values for the
 		attributes.
-
-		The shape can be horizontally mirrored by setting --inverted (-i).
-
-		To create a symmetric shape, similar to Box with alignment = center, but with a 
-		continuous line, use --mirrored.
 
 		Similarly to the box painter, the --height (or -h) flag controls the shape's overall
 		height. 

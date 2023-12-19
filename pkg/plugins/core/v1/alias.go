@@ -19,6 +19,8 @@ package v1
 import (
 	"github.com/zoomoid/waveman2/pkg/plugins/core/v1/box"
 	"github.com/zoomoid/waveman2/pkg/plugins/core/v1/line"
+	"github.com/zoomoid/waveman2/pkg/plugins/core/v1/sweep"
+	"github.com/zoomoid/waveman2/pkg/plugins/core/v1/wave"
 )
 
 var Line = line.Plugin
@@ -28,3 +30,11 @@ var NewLinePainter = line.NewPainter
 var Box = box.Plugin
 
 var NewBoxPainter = box.NewPainter
+
+var Wave = wave.Plugin
+
+var NewWavePainter = wave.NewPainter
+
+var Sweep = sweep.Plugin
+
+var NewSweepPainter = sweep.NewPainter
