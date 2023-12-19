@@ -28,6 +28,8 @@ func Execute(version string) {
 		V(version).
 		Plugin(corev1.Box).
 		Plugin(corev1.Line).
+		Plugin(corev1.Sweep).
+		Plugin(corev1.Wave).
 		Complete()
 
 	if err := rootCmd.Execute(); err != nil {
