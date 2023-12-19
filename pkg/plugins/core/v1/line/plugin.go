@@ -72,7 +72,6 @@ func (l *LinePlugin) Flags(flags *pflag.FlagSet) error {
 	flags.StringVar(&data.strokeColor, "stroke-color", DefaultStrokeColor, "Color of the line's stroke")
 	flags.Float64Var(&data.strokeWidth, "stroke-width", DefaultStrokeWidth, "Width of the line's stroke")
 	flags.BoolVarP(&data.closed, "closed", "c", false, "Whether the SVG path should be closed or left open")
-	flags.BoolVar(&data.mirrored, "mirrored", false, "Whether the shape should be mirrored, creating a symmetric waveform. Note that this is not *realistic*, i.e. it does not represent positive and negative polarity of samples!")
 	flags.BoolVarP(&data.inverted, "inverted", "i", false, "Whether the shape should be inverted horizontally, i.e., switch the vertical alignment from top to bottom")
 	return nil
 }
@@ -110,7 +109,6 @@ func (l *lineData) toOptions(width float64, height float64) *LineOptions {
 		Spread:    width,
 		Amplitude: height,
 		Inverted:  l.inverted,
-		Mirrored:  l.mirrored,
 	}
 }
 
@@ -146,6 +144,5 @@ func newLineData() *lineData {
 		height:        DefaultHeight,
 		closed:        false,
 		inverted:      false,
-		mirrored:      false,
 	}
 }
