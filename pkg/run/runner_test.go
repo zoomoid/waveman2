@@ -149,7 +149,6 @@ func TestLineMirrored(t *testing.T) {
 		Closed:    false,
 		Spread:    25,
 		Amplitude: 60,
-		Mirrored:  true,
 	}
 
 	svg, err := Line(fileFactory(), transformerOptions, lineOptions)
