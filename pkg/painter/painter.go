@@ -23,6 +23,7 @@ type PainterOptions struct {
 	Width  float64
 }
 
+// Painter is the interface each plugin's backend has to implement. It converts samples into SVG elements.
 type Painter interface {
 	// Height is the interface function for getting the painter canvas's total height
 	Height() float64
